@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alumni Directory</title>
+</head>
+<body>
+    <h2>Verified Alumni Directory</h2>
+
+    {% if alumni %}
+        <table border="1" cellpadding="10">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Batch</th>
+                <th>Department</th>
+            </tr>
+
+            {% for a in alumni %}
+            <tr>
+                <td>{{ a.name }}</td>
+                <td>{{ a.email }}</td>
+                <td>{{ a.batch }}</td>
+                <td>{{ a.department }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No verified alumni found.</p>
+    {% endif %}
+
+    <br>
+    <a href="/">Back to Home</a>
+</body>
+</html>
