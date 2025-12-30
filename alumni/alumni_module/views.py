@@ -50,3 +50,7 @@ def dashboard(request):
     alumni = Alumni.objects.get(id=alumni_id)
     return render(request, 'dashboard.html', {'alumni': alumni})
 
+def logout_view(request):
+    request.session.flush()
+    return redirect('/')
+
