@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ alumni.name }}</h2>
+
+        <p><strong>Email:</strong> {{ alumni.email }}</p>
+        <p><strong>Batch:</strong> {{ alumni.batch }}</p>
+        <p><strong>Department:</strong> {{ alumni.department }}</p>
+
+        <div class="actions">
+            <a href="/alumni-list/">Alumni Directory</a>
+            <a href="/">Home</a>
+        </div>
+    </div>
+</body>
+</html>

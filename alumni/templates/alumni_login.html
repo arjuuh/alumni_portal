@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alumni Login</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Alumni Login</h2>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <label>Email</label>
+            <input type="email" name="email" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="actions">
+            <a href="/">Home</a>
+        </div>
+    </div>
+</body>
+</html>

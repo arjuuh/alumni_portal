@@ -1,16 +1,22 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Alumni Portal</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-    <h1>Welcome to Alumni Portal System</h1>
-    <p>Connect with verified alumni of the institution.</p>
+    <div class="container">
+        <h1>Alumni Portal System</h1>
+        <p>A secure platform to connect verified alumni with the institution</p>
 
-    <a href="/register/">Register as Alumni</a><br><br>
-    <a href="/admin/">Admin Login</a>
+        <div class="actions">
+            <a href="/register/">Register</a>
+            <a href="/login/">Login</a>
+            <a href="/alumni-list/">Alumni Directory</a>
+            <a href="/teacher/verify/">Teacher Verification</a>
+            <a href="/admin/">Admin</a>
+        </div>
+    </div>
 </body>
 </html>
-
-<a href="/alumni-list/">View Alumni Directory</a><br><br>
-<a href="/teacher/verify/">Teacher Verification</a><br><br>

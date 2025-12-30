@@ -1,20 +1,22 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Alumni Directory</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-    <h2>Verified Alumni Directory</h2>
+    <div class="container">
+        <h2>Verified Alumni Directory</h2>
 
-    {% if alumni %}
-        <table border="1" cellpadding="10">
+        {% if alumni %}
+        <table>
             <tr>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Batch</th>
                 <th>Department</th>
             </tr>
-
             {% for a in alumni %}
             <tr>
                 <td>{{ a.name }}</td>
@@ -24,11 +26,13 @@
             </tr>
             {% endfor %}
         </table>
-    {% else %}
-        <p>No verified alumni found.</p>
-    {% endif %}
+        {% else %}
+            <p>No verified alumni found.</p>
+        {% endif %}
 
-    <br>
-    <a href="/">Back to Home</a>
+        <div class="actions">
+            <a href="/">Home</a>
+        </div>
+    </div>
 </body>
 </html>

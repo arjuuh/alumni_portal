@@ -1,13 +1,16 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Teacher Verification</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-    <h2>Unverified Alumni List</h2>
+    <div class="container">
+        <h2>Teacher – Verify Alumni</h2>
 
-    {% if alumni %}
-        <table border="1" cellpadding="10">
+        {% if alumni %}
+        <table>
             <tr>
                 <th>Name</th>
                 <th>Email</th>
@@ -32,11 +35,13 @@
             </tr>
             {% endfor %}
         </table>
-    {% else %}
-        <p>No unverified alumni.</p>
-    {% endif %}
+        {% else %}
+            <p>No unverified alumni.</p>
+        {% endif %}
 
-    <br>
-    <a href="/">Back to Home</a>
+        <div class="actions">
+            <a href="/">Home</a>
+        </div>
+    </div>
 </body>
 </html>

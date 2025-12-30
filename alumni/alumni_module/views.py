@@ -25,3 +25,28 @@ def register(request):
 def alumni_list(request):
     alumni = Alumni.objects.filter(is_verified=True)
     return render(request, 'alumni_list.html', {'alumni': alumni})
+
+def alumni_login(request):
+    error = ""
+
+    if request.method == 'POST':
+        email = request.POST['email']
+
+        try:
+            alumni = Alumni.objects.get(email=email, is_verified=True)
+            request.session['alumni_id'] = alumni.id
+            return redirect('/dashboard/')
+        except Alumni.DoesNotExist:
+            error = "Invalid email or alumni not verified"
+
+    return render(request, 'alumni_login.html', {'error': error})
+
+def dashboard(request):
+    alumni_id = request.session.get('alumni_id')
+
+    if not alumni_id:
+        return redirect('/login/')
+
+    alumni = Alumni.objects.get(id=alumni_id)
+    return render(request, 'dashboard.html', {'alumni': alumni})
+
