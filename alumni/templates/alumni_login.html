@@ -1,33 +1,209 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Alumni Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Portal</title>
+
+    <!-- Load CSS (optional, but safe) -->
     <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <!-- Google Fonts for better typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- FORCE VISIBILITY & ALIGNMENT -->
+    <style>
+        /* Reset everything */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff; /* Changed to white for visibility on dark card */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.85); /* Semi-transparent dark background for contrast */
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            color: #fff; /* White text for visibility */
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .card h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .card p {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #ccc; /* Light gray for subtitle */
+        }
+
+        .error {
+            color: #ff6b6b; /* Light red for error */
+            background: rgba(255, 107, 107, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        form {
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #555; /* Darker border for dark background */
+            border-radius: 8px;
+            font-size: 16px;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .links {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #fff; /* White text for visibility */
+            font-weight: 500;
+        }
+
+        .links a {
+            color: #fff; /* White links */
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            color: #667eea; /* Blue on hover for contrast */
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .card {
+                padding: 30px 20px;
+            }
+            .card h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Alumni Login</h2>
+
+<div class="page">
+    <div class="card">
+        <h1>Alumni Portal</h1>
+        <p>Sign in to continue</p>
 
         {% if error %}
-            <p class="error">{{ error }}</p>
+            <div class="error">{{ error }}</div>
         {% endif %}
 
         <form method="POST">
             {% csrf_token %}
 
-            <label>Email</label>
-            <input type="email" name="email" required>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
 
-            <label>Password</label>
-            <input type="password" name="password" required>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
 
             <button type="submit">Login</button>
         </form>
 
-        <div class="actions">
-            <a href="/">Home</a>
+        <div class="links">
+            New user? <a href="/register/">Register</a> | <a href="/teacher/login/">Teacher Login</a>
         </div>
     </div>
+</div>
+
 </body>
 </html>

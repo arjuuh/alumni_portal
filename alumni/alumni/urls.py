@@ -5,7 +5,7 @@ from teacher_module import views as teacher_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', alumni_views.home, name='home'),
+    path('', alumni_views.alumni_login),
     path('register/', alumni_views.register, name='register'),
     path('alumni-list/', alumni_views.alumni_list, name='alumni_list'),
     path('login/', alumni_views.alumni_login, name='alumni_login'),
