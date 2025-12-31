@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'admin_module',
     'alumni_module',
     'teacher_module',
+    'alumniportal',
+
 
 ]
 
