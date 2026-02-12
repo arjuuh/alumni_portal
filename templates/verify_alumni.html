@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify Alumni</title>
+</head>
+<body>
+    <h2>Verify Alumni Accounts</h2>
+
+    {% for user in users %}
+        <p>
+            {{ user.username }} -
+            <a href="/teacher/approve/{{ user.id }}/">Approve</a>
+        </p>
+    {% endfor %}
+
+    <a href="/teacher/dashboard/">Back</a>
+</body>
+</html>

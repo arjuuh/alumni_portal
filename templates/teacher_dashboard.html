@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            max-width: 600px;
+            margin: auto;
+            text-align: center;
+        }
+
+        a.button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: black;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        a.link {
+            display: block;
+            margin-top: 20px;
+            color: #0071e3;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Welcome, {{ request.user.username }}</h2>
+    <p>Teacher Control Panel</p>
+
+    <a href="{% url 'verify_alumni' %}" class="button">Verify Alumni</a>
+
+    <a href="{% url 'logout' %}" class="link">Logout</a>
+</div>
+
+</body>
+</html>

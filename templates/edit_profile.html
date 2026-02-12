@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Profile</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            width: 400px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Edit Profile</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="first_name" placeholder="First Name" value="{{ profile.first_name }}">
+        <input type="text" name="last_name" placeholder="Last Name" value="{{ profile.last_name }}">
+        <input type="text" name="gender" placeholder="Gender" value="{{ profile.gender }}">
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+
+</body>
+</html>
