@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alumni Profile</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        .info {
+            margin-bottom: 8px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #0071e3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+        <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
+    </div>
+
+    <div class="card">
+        <h2>Personal Information</h2>
+        <div class="info">Gender: {{ profile.gender }}</div>
+        <div class="info">City: {{ profile.city }}</div>
+        <div class="info">Country: {{ profile.country }}</div>
+    </div>
+
+    <div class="card">
+        <h2>Academic Details</h2>
+        <div class="info">Degree: {{ academic.degree }}</div>
+        <div class="info">Department: {{ academic.department }}</div>
+        <div class="info">College: {{ academic.college_name }}</div>
+        <div class="info">Graduation Year: {{ academic.year_of_graduation }}</div>
+    </div>
+
+    <div class="card">
+        <h2>Professional Details</h2>
+        <div class="info">Company: {{ professional.current_company }}</div>
+        <div class="info">Designation: {{ professional.current_designation }}</div>
+        <div class="info">Industry: {{ professional.industry }}</div>
+        <div class="info">
+            LinkedIn:
+            <a href="{{ professional.linkedin_profile }}" target="_blank">
+                {{ professional.linkedin_profile }}
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Contact</h2>
+        <div class="info">Email: {{ contact.email }}</div>
+        <div class="info">Phone: {{ contact.phone_number }}</div>
+    </div>
+
+</div>
+
+</body>
+</html>

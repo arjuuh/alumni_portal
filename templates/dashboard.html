@@ -1,95 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Alumni Portal</title>
+    <title>Alumni Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa; /* Professional light gray background */
+            padding: 40px;
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             color: #333;
         }
 
         .container {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 48px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            max-width: 1000px;
+            margin: auto;
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+        .card {
+            background: #f0f8ff; /* Soft light blue background for cards */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* Subtle shadow for depth */
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef; /* Light border for definition */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
 
         h2 {
-            font-size: 28px;
+            margin-bottom: 20px;
             font-weight: 600;
-            margin-bottom: 16px;
-            color: #333;
+            color: #212529; /* Darker text for professionalism */
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
         }
 
-        p {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 32px;
+        h2 i {
+            margin-right: 10px;
+            color: #495057; /* Muted icon color */
         }
 
-        a {
-            display: inline-block;
-            margin-top: 24px;
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
+        .info {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .info strong {
+            color: #495057; /* Consistent muted color for labels */
             font-weight: 500;
-            transition: color 0.3s ease;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .button {
+            display: inline-block;
             padding: 12px 24px;
-            border: 1px solid #667eea;
-            border-radius: 8px;
-            background: transparent;
-        }
-
-        a:hover {
-            color: #ffffff;
-            background: #667eea;
+            background: #343a40; /* Professional dark gray for primary button */
+            color: white;
             text-decoration: none;
+            border-radius: 6px;
+            margin-right: 15px;
+            font-weight: 500;
+            transition: background 0.3s ease, transform 0.2s ease;
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 32px;
-                margin: 16px;
-            }
+        .button:hover {
+            background: #23272b; /* Darker on hover */
+            transform: translateY(-1px);
+        }
 
+        .logout {
+            background: #dc3545; /* Keep red for logout, but ensure it's professional */
+        }
+
+        .logout:hover {
+            background: #c82333;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            .card {
+                padding: 20px;
+            }
             h2 {
-                font-size: 24px;
+                font-size: 1.3em;
+            }
+            .button {
+                display: block;
+                margin-bottom: 10px;
+                margin-right: 0;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Welcome, {{ request.user.username }}</h2>
-        <p>This is your Alumni Dashboard.</p>
-        <a href="{% url 'edit_profile' %}">Edit Profile</a>
-        <a href="{% url 'logout' %}">Logout</a>
+
+<div class="container">
+
+    <!-- Personal Information -->
+    <div class="card">
+        <h2><i class="fas fa-user"></i>Personal Information</h2>
+        <div class="info"><strong>First Name:</strong> {{ profile.first_name }}</div>
+        <div class="info"><strong>Last Name:</strong> {{ profile.last_name }}</div>
+        <div class="info"><strong>Gender:</strong> {{ profile.gender }}</div>
+        <div class="info"><strong>Date of Birth:</strong> {{ profile.date_of_birth }}</div>
+        <div class="info"><strong>Address:</strong> {{ profile.address }}</div>
+        <div class="info"><strong>City:</strong> {{ profile.city }}</div>
+        <div class="info"><strong>State:</strong> {{ profile.state }}</div>
+        <div class="info"><strong>Country:</strong> {{ profile.country }}</div>
+        <div class="info"><strong>Postal Code:</strong> {{ profile.postal_code }}</div>
     </div>
+
+    <!-- Academic Details -->
+    <div class="card">
+        <h2><i class="fas fa-graduation-cap"></i>Academic Details</h2>
+        <div class="info"><strong>Student ID:</strong> {{ academic.student_id }}</div>
+        <div class="info"><strong>Degree:</strong> {{ academic.degree }}</div>
+        <div class="info"><strong>Department:</strong> {{ academic.department }}</div>
+        <div class="info"><strong>College:</strong> {{ academic.college_name }}</div>
+        <div class="info"><strong>Admission Year:</strong> {{ academic.year_of_admission }}</div>
+        <div class="info"><strong>Graduation Year:</strong> {{ academic.year_of_graduation }}</div>
+        <div class="info"><strong>Achievements:</strong> {{ academic.achievements }}</div>
+    </div>
+
+    <!-- Professional Details -->
+    <div class="card">
+        <h2><i class="fas fa-briefcase"></i>Professional Details</h2>
+        <div class="info"><strong>Designation:</strong> {{ professional.current_designation }}</div>
+        <div class="info"><strong>Company:</strong> {{ professional.current_company }}</div>
+        <div class="info"><strong>Industry:</strong> {{ professional.industry }}</div>
+        <div class="info"><strong>Experience:</strong> {{ professional.year_of_experience }}</div>
+        <div class="info"><strong>Location:</strong> {{ professional.company_location }}</div>
+        <div class="info"><strong>LinkedIn:</strong> {{ professional.linkedin_profile }}</div>
+        <div class="info"><strong>Highlights:</strong> {{ professional.career_highlights }}</div>
+    </div>
+
+    <!-- Contact Details -->
+    <div class="card">
+        <h2><i class="fas fa-address-book"></i>Contact Details</h2>
+        <div class="info"><strong>Email:</strong> {{ contact.email }}</div>
+        <div class="info"><strong>Phone:</strong> {{ contact.phone_number }}</div>
+        <div class="info"><strong>Alternate Phone:</strong> {{ contact.alternate_phone }}</div>
+    </div>
+
+    <div class="card">
+    <h2>Alumni Engagement</h2>
+    <div class="info"><strong>Membership:</strong> {{ engagement.membership_status }}</div>
+    <div class="info"><strong>Events Attended:</strong> {{ engagement.events_attended }}</div>
+    <div class="info"><strong>Mentorship:</strong> {{ engagement.mentorship_interest }}</div>
+    <div class="info"><strong>Donation:</strong> {{ engagement.donation_amount }}</div>
+    <div class="info"><strong>Volunteer Work:</strong> {{ engagement.volunteer_activities }}</div>
+    <div class="info"><strong>Newsletter:</strong> {{ engagement.newsletter_subscription }}</div>
+</div>
+
+    <!-- Buttons -->
+    <div class="card">
+        <div class="buttons">
+            <a href="{% url 'edit_profile' %}" class="button"><i class="fas fa-edit"></i> Edit Profile</a>
+            <a href="{% url 'logout' %}" class="button logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="{% url 'alumni_directory' %}" class="button">Alumni Directory</a>
+        </div>
+    </div>
+
+</div>
+
 </body>
 </html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alumni Directory</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .search-box {
+            margin-bottom: 30px;
+        }
+
+        input {
+            padding: 10px;
+            width: 250px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<h2>Alumni Directory</h2>
+
+<div class="search-box">
+    <form method="GET">
+        <input type="text" name="q" placeholder="Search by name">
+        <input type="text" name="department" placeholder="Filter by department">
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+{% for profile in profiles %}
+    <div class="card">
+    <a href="{% url 'view_profile' profile.user.id %}">
+        <strong>{{ profile.first_name }} {{ profile.last_name }}</strong>
+    </a>
+        Email: {{ profile.user.email }}<br>
+        Department: {{ profile.user.academicdetails.department }}<br>
+        Company: {{ profile.user.professionaldetails.current_company }}
+    </div>
+{% empty %}
+    <p>No alumni found.</p>
+{% endfor %}
+
+</div>
+
+</body>
+</html>
