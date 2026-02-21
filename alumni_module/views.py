@@ -29,7 +29,7 @@ def home(request):
         except User.DoesNotExist:
             messages.error(request, "User not found")
 
-    return render(request, 'home.html')
+    return render(request, "auth/home.html")
 
 
 def register(request):
@@ -39,11 +39,25 @@ def register(request):
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
 
+        # Check password match
         if password != confirm_password:
-            return render(request, "register.html", {
+            return render(request, "auth/register.html", {
                 "error": "Passwords do not match"
             })
 
+        # Check if username exists
+        if User.objects.filter(username=username).exists():
+            return render(request, "auth/register.html", {
+                "error": "Username already exists"
+            })
+
+        # Check if email exists
+        if User.objects.filter(email=email).exists():
+            return render(request, "auth/register.html", {
+                "error": "Email already registered"
+            })
+
+        # Create user
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -53,11 +67,11 @@ def register(request):
         login(request, user)
         return redirect("dashboard")
 
-    return render(request, "register.html")
+    return render(request, "auth/register.html")
 
 @login_required
 def dashboard(request):
-    profile = request.user.alumniprofile
+    profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
 
     professional = ProfessionalDetails.objects.filter(user=request.user).first()
     academic = AcademicDetails.objects.filter(user=request.user).first()
@@ -65,7 +79,7 @@ def dashboard(request):
 
     posts = Post.objects.filter(user=request.user)
 
-    return render(request, "dashboard.html", {
+    return render(request, "alumni/dashboard.html", {
         "profile": profile,
         "professional": professional,
         "academic": academic,
@@ -149,7 +163,7 @@ def edit_profile(request):
 
         return redirect('dashboard')
 
-    return render(request, 'edit_profile.html', {
+    return render(request, 'alumni/edit_profile.html', {
     'profile': profile,
     'academic': academic,
     'professional': professional,
@@ -186,7 +200,7 @@ def alumni_directory(request):
             user__academicdetails__department__icontains=department
         )
 
-    return render(request, 'alumni_directory.html', {
+    return render(request, 'alumni/alumni_directory.html', {
         'profiles': profiles
     })
 
@@ -207,7 +221,7 @@ def view_profile(request, user_id):
     professional = ProfessionalDetails.objects.get(user_id=user_id)
     contact = ContactDetails.objects.get(user_id=user_id)
 
-    return render(request, 'view_profile.html', {
+    return render(request, 'alumni/view_profile.html', {
         'profile': profile,
         'academic': academic,
         'professional': professional,

@@ -53,16 +53,6 @@ class ContactDetails(models.Model):
     phone_number = models.CharField(max_length=20, blank=True)
     alternate_phone = models.CharField(max_length=20, blank=True)
 
-
-class AlumniEngagement(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    membership_status = models.CharField(max_length=50)
-    events_attended = models.IntegerField(default=0)
-    mentorship_interest = models.BooleanField(default=False)
-    donation_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    volunteer_activities = models.TextField(blank=True)
-    newsletter_subscription = models.BooleanField(default=True)
-
 class AlumniEngagement(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
@@ -84,3 +74,7 @@ class Post(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.created_at}"
+    
+class Connection(models.Model):
+    follower = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE)
+    following = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE)    
