@@ -1,180 +1,319 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Alumni Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f8f9fa; /* Professional light gray background */
-            padding: 40px;
             margin: 0;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f4f6;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
         .container {
             max-width: 1000px;
-            margin: auto;
+            margin: 30px auto;
         }
 
         .card {
-            background: #f0f8ff; /* Soft light blue background for cards */
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* Subtle shadow for depth */
-            margin-bottom: 25px;
-            border: 1px solid #e9ecef; /* Light border for definition */
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-        }
-
-        h2 {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             margin-bottom: 20px;
-            font-weight: 600;
-            color: #212529; /* Darker text for professionalism */
+        }
+
+        .profile-header {
             display: flex;
-            align-items: center;
-            font-size: 1.5em;
+            gap: 25px;
         }
 
-        h2 i {
-            margin-right: 10px;
-            color: #495057; /* Muted icon color */
+        .avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
-        .info {
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-
-        .info strong {
-            color: #495057; /* Consistent muted color for labels */
-            font-weight: 500;
-        }
-
-        .buttons {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #343a40; /* Professional dark gray for primary button */
+        .badge {
+            background: #111827;
             color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            margin-right: 15px;
-            font-weight: 500;
-            transition: background 0.3s ease, transform 0.2s ease;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 8px;
         }
 
-        .button:hover {
-            background: #23272b; /* Darker on hover */
-            transform: translateY(-1px);
+        .subtitle {
+            color: #6b7280;
+            margin-top: 6px;
         }
 
-        .logout {
-            background: #dc3545; /* Keep red for logout, but ensure it's professional */
+        .bio {
+            margin-top: 12px;
+            color: #374151;
         }
 
-        .logout:hover {
-            background: #c82333;
+        .info-row {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #6b7280;
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 20px;
-            }
-            .card {
-                padding: 20px;
-            }
-            h2 {
-                font-size: 1.3em;
-            }
-            .button {
-                display: block;
-                margin-bottom: 10px;
-                margin-right: 0;
-            }
+        .stats {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #e5e7eb;
+            border-radius: 30px;
+            padding: 5px;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .tab.active {
+            background: white;
+            font-weight: 600;
+        }
+
+        .post-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .post-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+
+        small {
+            color: #6b7280;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .active-section {
+            display: block;
         }
     </style>
 </head>
+
 <body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>Alumni Portal</h2>
+
+    <div class="nav-right">
+        <span>{{ profile.first_name }}</span>
+        {% if profile.photo %}
+            <img src="{{ profile.photo.url }}" class="nav-avatar">
+        {% endif %}
+    </div>
+</div>
 
 <div class="container">
 
-    <!-- Personal Information -->
+    <!-- PROFILE CARD -->
     <div class="card">
-        <h2><i class="fas fa-user"></i>Personal Information</h2>
-        <div class="info"><strong>First Name:</strong> {{ profile.first_name }}</div>
-        <div class="info"><strong>Last Name:</strong> {{ profile.last_name }}</div>
-        <div class="info"><strong>Gender:</strong> {{ profile.gender }}</div>
-        <div class="info"><strong>Date of Birth:</strong> {{ profile.date_of_birth }}</div>
-        <div class="info"><strong>Address:</strong> {{ profile.address }}</div>
-        <div class="info"><strong>City:</strong> {{ profile.city }}</div>
-        <div class="info"><strong>State:</strong> {{ profile.state }}</div>
-        <div class="info"><strong>Country:</strong> {{ profile.country }}</div>
-        <div class="info"><strong>Postal Code:</strong> {{ profile.postal_code }}</div>
-    </div>
+        <div class="profile-header">
 
-    <!-- Academic Details -->
-    <div class="card">
-        <h2><i class="fas fa-graduation-cap"></i>Academic Details</h2>
-        <div class="info"><strong>Student ID:</strong> {{ academic.student_id }}</div>
-        <div class="info"><strong>Degree:</strong> {{ academic.degree }}</div>
-        <div class="info"><strong>Department:</strong> {{ academic.department }}</div>
-        <div class="info"><strong>College:</strong> {{ academic.college_name }}</div>
-        <div class="info"><strong>Admission Year:</strong> {{ academic.year_of_admission }}</div>
-        <div class="info"><strong>Graduation Year:</strong> {{ academic.year_of_graduation }}</div>
-        <div class="info"><strong>Achievements:</strong> {{ academic.achievements }}</div>
-    </div>
+            {% if profile.photo %}
+                <img src="{{ profile.photo.url }}" class="avatar">
+            {% endif %}
 
-    <!-- Professional Details -->
-    <div class="card">
-        <h2><i class="fas fa-briefcase"></i>Professional Details</h2>
-        <div class="info"><strong>Designation:</strong> {{ professional.current_designation }}</div>
-        <div class="info"><strong>Company:</strong> {{ professional.current_company }}</div>
-        <div class="info"><strong>Industry:</strong> {{ professional.industry }}</div>
-        <div class="info"><strong>Experience:</strong> {{ professional.year_of_experience }}</div>
-        <div class="info"><strong>Location:</strong> {{ professional.company_location }}</div>
-        <div class="info"><strong>LinkedIn:</strong> {{ professional.linkedin_profile }}</div>
-        <div class="info"><strong>Highlights:</strong> {{ professional.career_highlights }}</div>
-    </div>
+            <div>
+                <h2>
+                    {{ profile.first_name }} {{ profile.last_name }}
 
-    <!-- Contact Details -->
-    <div class="card">
-        <h2><i class="fas fa-address-book"></i>Contact Details</h2>
-        <div class="info"><strong>Email:</strong> {{ contact.email }}</div>
-        <div class="info"><strong>Phone:</strong> {{ contact.phone_number }}</div>
-        <div class="info"><strong>Alternate Phone:</strong> {{ contact.alternate_phone }}</div>
-    </div>
+                    {% if metadata.verified_by_admin %}
+                        <span class="badge">Verified</span>
+                    {% endif %}
 
-    <div class="card">
-    <h2>Alumni Engagement</h2>
-    <div class="info"><strong>Membership:</strong> {{ engagement.membership_status }}</div>
-    <div class="info"><strong>Events Attended:</strong> {{ engagement.events_attended }}</div>
-    <div class="info"><strong>Mentorship:</strong> {{ engagement.mentorship_interest }}</div>
-    <div class="info"><strong>Donation:</strong> {{ engagement.donation_amount }}</div>
-    <div class="info"><strong>Volunteer Work:</strong> {{ engagement.volunteer_activities }}</div>
-    <div class="info"><strong>Newsletter:</strong> {{ engagement.newsletter_subscription }}</div>
-</div>
+                    <span class="badge">alumni</span>
+                </h2>
 
-    <!-- Buttons -->
-    <div class="card">
-        <div class="buttons">
-            <a href="{% url 'edit_profile' %}" class="button"><i class="fas fa-edit"></i> Edit Profile</a>
-            <a href="{% url 'logout' %}" class="button logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-            <a href="{% url 'alumni_directory' %}" class="button">Alumni Directory</a>
+                <div class="subtitle">
+                    {{ professional.current_designation }} at {{ professional.current_company }}
+                </div>
+
+                <div class="bio">
+                    {{ professional.career_highlights }}
+                </div>
+
+                <div class="info-row">
+                    🎓 {{ academic.degree }} • Class of {{ academic.year_of_graduation }}
+                    <br>
+                    📍 {{ profile.city }}, {{ profile.state }}
+                    <br>
+                    ✉ {{ contact.email }}
+                </div>
+
+                <div class="stats">
+                    {{ followers_count }} Followers |
+                    {{ following_count }} Following |
+                    {{ posts|length }} Posts
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- TABS -->
+    <div class="card">
+        <div class="tabs">
+            <div class="tab active" onclick="showSection('posts')">Posts</div>
+            <div class="tab" onclick="showSection('personal')">Personal</div>
+            <div class="tab" onclick="showSection('academic')">Academic</div>
+            <div class="tab" onclick="showSection('professional')">Professional</div>
+            <div class="tab" onclick="showSection('contact')">Contact</div>
+        </div>
+    </div>
+
+    <!-- POSTS -->
+    <!-- POSTS SECTION -->
+<div id="posts" class="section active-section">
+    {% for post in posts %}
+    <div class="card">
+        <strong>{{ profile.first_name }} {{ profile.last_name }}</strong><br>
+        <small>{{ post.created_at|timesince }} ago</small>
+        <p>{{ post.content }}</p>
+        {% if post.image %}
+            <img src="{{ post.image.url }}" class="post-image">
+        {% endif %}
+    </div>
+    {% empty %}
+        <div class="card">No posts yet.</div>
+    {% endfor %}
 </div>
+
+<!-- PERSONAL SECTION -->
+<div id="personal" class="section">
+    <div class="card">
+        <h3>Personal Information</h3>
+        <p><strong>First Name:</strong> {{ profile.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ profile.last_name }}</p>
+        <p><strong>Gender:</strong> {{ profile.gender }}</p>
+        <p><strong>Date of Birth:</strong> {{ profile.date_of_birth }}</p>
+        <p><strong>City:</strong> {{ profile.city }}</p>
+        <p><strong>State:</strong> {{ profile.state }}</p>
+        <p><strong>Country:</strong> {{ profile.country }}</p>
+    </div>
+</div>
+
+<!-- ACADEMIC SECTION -->
+<div id="academic" class="section">
+    <div class="card">
+        <h3>Academic Details</h3>
+        {% if academic %}
+        <p><strong>Degree:</strong> {{ academic.degree }}</p>
+        <p><strong>Department:</strong> {{ academic.department }}</p>
+        <p><strong>College:</strong> {{ academic.college_name }}</p>
+        <p><strong>Admission Year:</strong> {{ academic.year_of_admission }}</p>
+        <p><strong>Graduation Year:</strong> {{ academic.year_of_graduation }}</p>
+        {% else %}
+        <p>No academic details added.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- PROFESSIONAL SECTION -->
+<div id="professional" class="section">
+    <div class="card">
+        <h3>Professional Details</h3>
+        {% if professional %}
+        <p><strong>Designation:</strong> {{ professional.current_designation }}</p>
+        <p><strong>Company:</strong> {{ professional.current_company }}</p>
+        <p><strong>Industry:</strong> {{ professional.industry }}</p>
+        <p><strong>Experience:</strong> {{ professional.year_of_experience }} years</p>
+        <p><strong>Location:</strong> {{ professional.company_location }}</p>
+        <p><strong>LinkedIn:</strong> {{ professional.linkedin_profile }}</p>
+        {% else %}
+        <p>No professional details added.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- CONTACT SECTION -->
+<div id="contact" class="section">
+    <div class="card">
+        <h3>Contact Details</h3>
+        {% if contact %}
+        <p><strong>Email:</strong> {{ contact.email }}</p>
+        <p><strong>Phone:</strong> {{ contact.phone_number }}</p>
+        <p><strong>Alternate Phone:</strong> {{ contact.alternate_phone }}</p>
+        {% else %}
+        <p>No contact details added.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function showSection(sectionId) {
+
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active-section');
+    });
+
+    // Remove active tab
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Show selected section
+    document.getElementById(sectionId).classList.add('active-section');
+
+    // Highlight selected tab
+    event.target.classList.add('active');
+}
+</script>
 
 </body>
 </html>

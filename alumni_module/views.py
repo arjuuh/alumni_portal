@@ -8,7 +8,8 @@ from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, Contact
 from django.contrib.auth.decorators import login_required
 from admin_module.models import SystemMetadata
 from .models import AlumniEngagement
-
+from django.shortcuts import render
+from .models import Post
 
 def home(request):
     if request.method == "POST":
@@ -33,94 +34,46 @@ def home(request):
 
 def register(request):
     if request.method == "POST":
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
 
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered")
-        else:
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password
-            )
+        if password != confirm_password:
+            return render(request, "register.html", {
+                "error": "Passwords do not match"
+            })
 
-            # 👇 Automatically create AlumniProfile
-            AlumniProfile.objects.create(
-                user=user,
-                first_name="",
-                last_name="",
-                gender="",
-                date_of_birth="2000-01-01"
-            )
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
 
-            return redirect('home')
+        login(request, user)
+        return redirect("dashboard")
 
-    return render(request, 'register.html')
+    return render(request, "register.html")
 
 @login_required
 def dashboard(request):
+    profile = request.user.alumniprofile
 
-    metadata, _ = SystemMetadata.objects.get_or_create(user=request.user)
+    professional = ProfessionalDetails.objects.filter(user=request.user).first()
+    academic = AcademicDetails.objects.filter(user=request.user).first()
+    contact = ContactDetails.objects.filter(user=request.user).first()
 
-    if not metadata.verified_by_admin:
-        return render(request, 'not_verified.html')
+    posts = Post.objects.filter(user=request.user)
 
-    profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
-    academic, _ = AcademicDetails.objects.get_or_create(user=request.user)
-    professional, _ = ProfessionalDetails.objects.get_or_create(user=request.user)
-    contact, _ = ContactDetails.objects.get_or_create(user=request.user)
-    engagement, _ = AlumniEngagement.objects.get_or_create(user=request.user)
-    all_fields = [
-
-    # Personal
-    profile.first_name,
-    profile.last_name,
-    profile.gender,
-    profile.date_of_birth,
-    profile.address,
-    profile.city,
-    profile.state,
-    profile.country,
-    profile.postal_code,
-
-    # Academic
-    academic.student_id,
-    academic.degree,
-    academic.department,
-    academic.college_name,
-    academic.year_of_admission,
-    academic.year_of_graduation,
-    academic.achievements,
-
-    # Professional
-    professional.current_designation,
-    professional.current_company,
-    professional.industry,
-    professional.year_of_experience,
-    professional.company_location,
-    professional.linkedin_profile,
-    professional.career_highlights,
-
-    # Contact
-    contact.email,
-    contact.phone_number,
-    contact.alternate_phone,
-]
-
-    filled = sum(1 for field in all_fields if field)
-    total = len(all_fields)
-    completion_percentage = int((filled / total) * 100) if total > 0 else 0
-
-    return render(request, 'dashboard.html', {
-    'profile': profile,
-    'academic': academic,
-    'professional': professional,
-    'contact': contact,
-    'engagement': engagement,
-})
-
+    return render(request, "dashboard.html", {
+        "profile": profile,
+        "professional": professional,
+        "academic": academic,
+        "contact": contact,
+        "posts": posts,
+        "followers_count": 0,
+        "following_count": 0,
+    })
 
 def user_logout(request):
     logout(request)
