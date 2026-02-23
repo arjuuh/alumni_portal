@@ -28,7 +28,6 @@ class AcademicDetails(models.Model):
     student_id = models.CharField(max_length=50, blank=True)
     degree = models.CharField(max_length=100, blank=True)
     department = models.CharField(max_length=100, blank=True)
-    college_name = models.CharField(max_length=200, blank=True)
     year_of_admission = models.IntegerField(null=True, blank=True)
     year_of_graduation = models.IntegerField(null=True, blank=True)
     achievements = models.TextField(blank=True)

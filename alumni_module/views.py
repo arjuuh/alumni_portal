@@ -4,12 +4,12 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails
+from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post
 from django.contrib.auth.decorators import login_required
 from admin_module.models import SystemMetadata
 from .models import AlumniEngagement
-from django.shortcuts import render
-from .models import Post
+from django.db import transaction
+
 
 def home(request):
     if request.method == "POST":
@@ -21,8 +21,24 @@ def home(request):
             user = authenticate(request, username=user_obj.username, password=password)
 
             if user is not None:
+                metadata = SystemMetadata.objects.filter(user=user).first()
+
+                if not metadata:
+                    messages.error(request, "Profile not found.")
+                    return redirect("home")
+
+                if metadata.status == "PENDING":
+                    messages.warning(request, "Your account is waiting for approval.")
+                    return redirect("waiting_approval")
+
+                if metadata.status == "REJECTED":
+                    messages.error(request, "Your account was rejected. Contact admin.")
+                    return redirect("home")
+
+                # If APPROVED
                 login(request, user)
-                return redirect('dashboard')
+                return redirect("dashboard")
+
             else:
                 messages.error(request, "Invalid credentials")
 
@@ -31,7 +47,6 @@ def home(request):
 
     return render(request, "auth/home.html")
 
-
 def register(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -39,40 +54,47 @@ def register(request):
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
 
-        # Check password match
         if password != confirm_password:
             return render(request, "auth/register.html", {
                 "error": "Passwords do not match"
             })
 
-        # Check if username exists
         if User.objects.filter(username=username).exists():
             return render(request, "auth/register.html", {
                 "error": "Username already exists"
             })
 
-        # Check if email exists
         if User.objects.filter(email=email).exists():
             return render(request, "auth/register.html", {
                 "error": "Email already registered"
             })
 
-        # Create user
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password
         )
 
-        login(request, user)
-        return redirect("dashboard")
+        # Create metadata with PENDING status
+        from admin_module.models import SystemMetadata
+        SystemMetadata.objects.create(
+            user=user,
+            status="PENDING"
+        )
+
+        return redirect("complete_profile")
 
     return render(request, "auth/register.html")
 
 @login_required
 def dashboard(request):
-    profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
 
+    metadata = SystemMetadata.objects.filter(user=request.user).first()
+
+    if not metadata or not metadata.verified_by_admin:
+        return redirect("waiting_approval")
+    
+    profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
     professional = ProfessionalDetails.objects.filter(user=request.user).first()
     academic = AcademicDetails.objects.filter(user=request.user).first()
     contact = ContactDetails.objects.filter(user=request.user).first()
@@ -123,7 +145,6 @@ def edit_profile(request):
         academic.student_id = request.POST.get('student_id')
         academic.degree = request.POST.get('degree')
         academic.department = request.POST.get('department')
-        academic.college_name = request.POST.get('college_name')
         admission = request.POST.get('year_of_admission')
         academic.year_of_admission = int(admission) if admission else None
         graduation = request.POST.get('year_of_graduation')
@@ -227,3 +248,80 @@ def view_profile(request, user_id):
         'professional': professional,
         'contact': contact,
     })
+
+
+def complete_profile(request):
+
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+
+                # ===== PERSONAL PROFILE =====
+                profile, created = AlumniProfile.objects.get_or_create(
+                    user=request.user
+                )
+
+                profile.first_name = request.POST.get("first_name", "")
+                profile.last_name = request.POST.get("last_name", "")
+                profile.gender = request.POST.get("gender", "")
+                profile.date_of_birth = request.POST.get("date_of_birth") or None
+                profile.address = request.POST.get("address", "")
+                profile.city = request.POST.get("city", "")
+                profile.state = request.POST.get("state", "")
+                profile.country = request.POST.get("country", "")
+                profile.postal_code = request.POST.get("postal_code", "")
+
+                if request.FILES.get("photo"):
+                    profile.photo = request.FILES.get("photo")
+
+                profile.save()
+
+                # ===== ACADEMIC DETAILS =====
+                academic, created = AcademicDetails.objects.get_or_create(
+                    user=request.user
+                )
+
+                academic.student_id = request.POST.get("student_id", "")
+                academic.degree = request.POST.get("degree", "")
+                academic.department = request.POST.get("department", "")
+                academic.year_of_admission = request.POST.get("year_of_admission") or None
+                academic.year_of_graduation = request.POST.get("year_of_graduation") or None
+
+                academic.save()
+
+                # ===== PROFESSIONAL DETAILS =====
+                professional, created = ProfessionalDetails.objects.get_or_create(
+                    user=request.user
+                )
+
+                professional.current_designation = request.POST.get("current_designation", "")
+                professional.current_company = request.POST.get("current_company", "")
+                professional.industry = request.POST.get("industry", "")
+                professional.year_of_experience = request.POST.get("year_of_experience") or 0
+                professional.company_location = request.POST.get("company_location", "")
+                professional.linkedin_profile = request.POST.get("linkedin_profile", "")
+
+                professional.save()
+
+                # ===== CONTACT DETAILS =====
+                contact, created = ContactDetails.objects.get_or_create(
+                    user=request.user
+                )
+
+                contact.phone_number = request.POST.get("phone_number", "")
+                contact.alternate_phone = request.POST.get("alternate_phone", "")
+                contact.email = request.user.email
+
+                contact.save()
+
+                messages.success(request, "Profile submitted. Waiting for approval.")
+                return redirect("waiting_approval")
+
+        except Exception as e:
+            messages.error(request, f"Something went wrong: {str(e)}")
+            return redirect("complete_profile")
+
+    return render(request, "alumni/complete_profile.html")
+
+def waiting_approval(request):
+    return render(request, "auth/waiting_approval.html")

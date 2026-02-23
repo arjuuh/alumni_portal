@@ -1,0 +1,364 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Complete Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 20px 0 30px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 8px;
+            width: 25%;
+            background: linear-gradient(90deg,#667eea,#764ba2);
+            transition: width 0.4s ease;
+        }
+
+        /* Steps */
+        .step {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateX(10px);}
+            to {opacity: 1; transform: translateX(0);}
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 14px;
+            background: transparent;
+            outline: none;
+        }
+
+        .input-group label {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            font-size: 13px;
+            color: #9ca3af;
+            transition: 0.3s;
+            pointer-events: none;
+        }
+
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label,
+        .input-group select:focus + label {
+            top: -8px;
+            left: 10px;
+            font-size: 11px;
+            background: white;
+            padding: 0 5px;
+            color: #667eea;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 22px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .next-btn {
+            background: linear-gradient(90deg,#667eea,#764ba2);
+            color: white;
+        }
+
+        .prev-btn {
+            background: #e5e7eb;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Image Upload */
+        .profile-preview {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-preview img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+        }
+    </style>
+</head>
+
+<body>
+
+{% if messages %}
+  {% for message in messages %}
+    <div style="
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #d1fae5;
+        color: #065f46;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        z-index: 999;">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<div class="card">
+    <h2>Complete Your Profile</h2>
+    <p>Step-by-step setup for NASC Alumni Network</p>
+
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- STEP 1 -->
+        <div class="step active">
+
+            <h3>Basic Information</h3>
+
+            <div class="profile-preview">
+                <img id="preview" src="{% static 'default-avatar.png' %}">
+                <br><br>
+                <input type="file" name="photo" onchange="previewImage(event)">
+            </div>
+
+            <div class="input-group">
+                <input type="text" name="first_name" placeholder=" " required>
+                <label>First Name</label>
+            </div>
+
+            <div class="input-group">
+                <input type="text" name="last_name" placeholder=" " required>
+                <label>Last Name</label>
+            </div>
+
+            <div class="input-group">
+                <input type="date" name="date_of_birth" placeholder=" ">
+                <label>Date of Birth</label>
+            </div>
+
+            <div class="input-group">
+                <select name="gender">
+                    <option value="">Select Gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                </select>
+                <label>Gender</label>
+            </div>
+
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step">
+
+            <h3>Academic Details</h3>
+
+            <div class="input-group">
+                <input type="text" name="department" placeholder=" ">
+                <label>Department</label>
+            </div>
+
+            <div class="input-group">
+                <input type="text" name="student_id" placeholder=" ">
+                <label>Student ID</label>
+            </div>
+
+            <div class="input-group">
+                <input type="text" name="degree" placeholder=" ">
+                <label>Degree</label>
+            </div>
+
+            <div class="input-group">
+                <input type="number" name="year_of_admission" placeholder=" ">
+                <label>Year of Admission</label>
+            </div>
+
+            <div class="input-group">
+                <input type="number" name="year_of_graduation" placeholder=" ">
+                <label>Graduation Year</label>
+            </div>
+
+        </div>
+
+ 
+        <!-- STEP 4 -->
+        <div class="step">
+
+            <h3>Professional Details</h3>
+
+            <div class="input-group">
+                <input type="text" name="current_designation" placeholder=" ">
+                <label>Current Designation</label>
+            </div>
+
+            <div class="input-group">
+                <input type="text" name="current_company" placeholder=" ">
+                <label>Current Company</label>
+            </div>
+
+            <div class="input-group">
+                <input type="number" name="year_of_experience" placeholder=" ">
+                <label>Experience (Years)</label>
+            </div>
+
+            <div class="input-group">
+                <input type="url" name="linkedin_profile" placeholder=" ">
+                <label>LinkedIn Profile</label>
+            </div>
+
+            <div class="input-group">
+                <input type="text" name="phone_number" placeholder=" ">
+                <label>Phone Number</label>
+            </div>
+
+        </div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    let currentStep = 0;
+    const steps = document.querySelectorAll(".step");
+    const progress = document.getElementById("progress");
+    const submitBtn = document.getElementById("submitBtn");
+    const nextBtn = document.querySelector(".next-btn");
+    const prevBtn = document.querySelector(".prev-btn");
+
+    function showStep(index) {
+
+        steps.forEach((step, i) => {
+            step.classList.remove("active");
+        });
+
+        if (steps[index]) {
+            steps[index].classList.add("active");
+        }
+
+        if (progress) {
+            progress.style.width = ((index + 1) / steps.length) * 100 + "%";
+        }
+
+        if (index === steps.length - 1) {
+            nextBtn.style.display = "none";
+            submitBtn.style.display = "inline-block";
+        } else {
+            nextBtn.style.display = "inline-block";
+            submitBtn.style.display = "none";
+        }
+
+        if (index === 0) {
+            prevBtn.style.visibility = "hidden";
+        } else {
+            prevBtn.style.visibility = "visible";
+        }
+    }
+
+    window.nextStep = function() {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    }
+
+    window.prevStep = function() {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    }
+
+    window.previewImage = function(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            document.getElementById("preview").src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    showStep(currentStep);
+});
+</script>
+
+        <div class="buttons">
+            <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
+            <button type="button" class="next-btn" onclick="nextStep()">Next</button>
+            <button type="submit" id="submitBtn" style="display:none;">Submit</button>
+        </div>
+
+    </form>
+</body>
+</html>

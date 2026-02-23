@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -142,6 +143,45 @@
         .active-section {
             display: block;
         }
+
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+                }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 400px;
+        }
+
+        .gradient-btn {
+            background: linear-gradient(to right, #4e73df, #825ee4);
+            border: none;
+            padding: 12px;
+            color: white;
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #4e73df;
+        }
+        
+        .post-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -154,7 +194,9 @@
     <div class="nav-right">
         <span>{{ profile.first_name }}</span>
         {% if profile.photo %}
-            <img src="{{ profile.photo.url }}" class="nav-avatar">
+            <img src="{{ profile.photo.url }}" class="profile-img">
+        {% else %}
+            <img src="{% static 'default-avatar.png' %}">
         {% endif %}
     </div>
 </div>
@@ -166,7 +208,9 @@
         <div class="profile-header">
 
             {% if profile.photo %}
-                <img src="{{ profile.photo.url }}" class="avatar">
+                <img src="{{ post.image.url }}" class="post-img">
+            {% else %}
+                <img src="{% static 'default-avatar.png' %}">
             {% endif %}
 
             <div>
