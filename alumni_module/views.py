@@ -4,46 +4,50 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post
+from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post, AlumniEngagement
 from django.contrib.auth.decorators import login_required
-from admin_module.models import SystemMetadata
-from .models import AlumniEngagement
 from django.db import transaction
+from teacher_module.models import Alumni
+
 
 
 def home(request):
     if request.method == "POST":
-        email = request.POST['email']
-        password = request.POST['password']
+        email = request.POST.get("email")
+        password = request.POST.get("password")
 
         try:
             user_obj = User.objects.get(email=email)
-            user = authenticate(request, username=user_obj.username, password=password)
+
+            user = authenticate(
+                request,
+                username=user_obj.username,
+                password=password
+            )
 
             if user is not None:
-                metadata = SystemMetadata.objects.filter(user=user).first()
 
-                if not metadata:
-                    messages.error(request, "Profile not found.")
-                    return redirect("home")
+                alumni = Alumni.objects.filter(user=user).first()
 
-                if metadata.status == "PENDING":
+                if not alumni:
                     messages.warning(request, "Your account is waiting for approval.")
                     return redirect("waiting_approval")
 
-                if metadata.status == "REJECTED":
-                    messages.error(request, "Your account was rejected. Contact admin.")
-                    return redirect("home")
+                # 🔥 THIS IS THE IMPORTANT LINE
+                if alumni.status != "APPROVED":
+                    messages.warning(request, "Your account is waiting for approval.")
+                    return redirect("waiting_approval")
 
-                # If APPROVED
                 login(request, user)
                 return redirect("dashboard")
 
             else:
                 messages.error(request, "Invalid credentials")
+                return redirect("home")
 
         except User.DoesNotExist:
             messages.error(request, "User not found")
+            return redirect("home")
 
     return render(request, "auth/home.html")
 
@@ -89,11 +93,12 @@ def register(request):
 @login_required
 def dashboard(request):
 
-    metadata = SystemMetadata.objects.filter(user=request.user).first()
+    # 🔥 Check approval using Alumni model
+    alumni = Alumni.objects.filter(user=request.user).first()
 
-    if not metadata or not metadata.verified_by_admin:
+    if not alumni or alumni.status != "APPROVED":
         return redirect("waiting_approval")
-    
+
     profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
     professional = ProfessionalDetails.objects.filter(user=request.user).first()
     academic = AcademicDetails.objects.filter(user=request.user).first()

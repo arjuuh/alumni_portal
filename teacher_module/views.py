@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from teacher_module.models import Alumni
 
+
 def teacher_login(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -37,10 +38,15 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.models import User
 from .models import SystemMetadata
 
-@login_required
+
 def approve_alumni(request, user_id):
     user = get_object_or_404(User, id=user_id)
+
+    # Get or create Alumni record
     alumni, created = Alumni.objects.get_or_create(user=user)
+
+    # 👇 THIS IS WHERE YOU PLACE IT
     alumni.status = "APPROVED"
     alumni.save()
+
     return redirect("verify_alumni")
