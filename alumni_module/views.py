@@ -210,7 +210,7 @@ def alumni_directory(request):
 
     # Show only verified alumni
     verified_users = SystemMetadata.objects.filter(
-        verified_by_admin=True
+        status="APPROVED"
     ).values_list('user', flat=True)
 
     profiles = profiles.filter(user__in=verified_users)
@@ -236,7 +236,7 @@ def view_profile(request, user_id):
 
     metadata = SystemMetadata.objects.filter(
         user_id=user_id,
-        verified_by_admin=True
+        status="APPROVED"
     ).first()
 
     if not metadata:
@@ -254,7 +254,7 @@ def view_profile(request, user_id):
         'contact': contact,
     })
 
-
+@login_required
 def complete_profile(request):
 
     if request.method == "POST":
