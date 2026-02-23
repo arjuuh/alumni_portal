@@ -10,7 +10,6 @@ from django.db import transaction
 from teacher_module.models import Alumni
 
 
-
 def home(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -209,11 +208,11 @@ def alumni_directory(request):
     profiles = AlumniProfile.objects.all()
 
     # Show only verified alumni
-    verified_users = SystemMetadata.objects.filter(
+    approved_users = Alumni.objects.filter(
         status="APPROVED"
     ).values_list('user', flat=True)
 
-    profiles = profiles.filter(user__in=verified_users)
+    profiles = profiles.filter(user__in=approved_users)
 
     if query:
         profiles = profiles.filter(
@@ -234,12 +233,12 @@ def alumni_directory(request):
 @login_required
 def view_profile(request, user_id):
 
-    metadata = SystemMetadata.objects.filter(
+    approved = Alumni.objects.filter(
         user_id=user_id,
         status="APPROVED"
     ).first()
 
-    if not metadata:
+    if not approved:
         return redirect('alumni_directory')
 
     profile = AlumniProfile.objects.get(user_id=user_id)
