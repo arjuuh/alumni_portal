@@ -9,10 +9,10 @@
     {% for user in users %}
         <p>
             {{ user.username }} -
-            <a href="/teacher/approve/{{ user.id }}/">Approve</a>
+            <a href="{% url 'approve_alumni' user.id %}">Approve</a>
         </p>
     {% endfor %}
 
-    <a href="/teacher/dashboard/">Back</a>
+    <a href="{% url 'teacher_dashboard' %}">Back</a>
 </body>
 </html>

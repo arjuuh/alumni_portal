@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from admin_module.models import SystemMetadata
 from django.contrib.auth.models import User
+from teacher_module.models import Alumni
 
 def teacher_login(request):
     if request.method == "POST":
@@ -18,12 +18,12 @@ def teacher_login(request):
         else:
             messages.error(request, "Invalid teacher credentials")
 
-    return render(request, 'teacher_login.html')
+    return render(request, 'teacher/teacher_login.html')
 
 
 @login_required
 def teacher_dashboard(request):
-    return render(request, 'teacher_dashboard.html')
+    return render(request, 'teacher/teacher_dashboard.html')
 
 @login_required
 def verify_alumni(request):
@@ -31,16 +31,16 @@ def verify_alumni(request):
         return redirect('home')
 
     users = User.objects.all()
-    return render(request, 'verify_alumni.html', {'users': users})
+    return render(request, 'teacher/verify_alumni.html', {'users': users})
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.models import User
+from .models import SystemMetadata
 
 @login_required
 def approve_alumni(request, user_id):
-    if not request.user.is_staff:
-        return redirect('home')
-
-    user = User.objects.get(id=user_id)
-    metadata, created = SystemMetadata.objects.get_or_create(user=user)
-    metadata.verified_by_admin = True
-    metadata.save()
-
-    return redirect('verify_alumni')
+    user = get_object_or_404(User, id=user_id)
+    alumni, created = Alumni.objects.get_or_create(user=user)
+    alumni.status = "APPROVED"
+    alumni.save()
+    return redirect("verify_alumni")
