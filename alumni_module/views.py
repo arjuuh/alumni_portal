@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
-from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post, AlumniEngagement
-from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from teacher_module.models import Alumni
+from django.db.models import Q
 
+from admin_module.models import SystemMetadata
+from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post, AlumniEngagement
 
 
 def home(request):
@@ -27,16 +26,19 @@ def home(request):
 
             if user is not None:
 
-                alumni = Alumni.objects.filter(user=user).first()
+                metadata = SystemMetadata.objects.filter(user=user).first()
 
-                if not alumni:
+                if not metadata:
                     messages.warning(request, "Your account is waiting for approval.")
                     return redirect("waiting_approval")
 
-                # 🔥 THIS IS THE IMPORTANT LINE
-                if alumni.status != "APPROVED":
+                if metadata.status == "PENDING":
                     messages.warning(request, "Your account is waiting for approval.")
                     return redirect("waiting_approval")
+
+                if metadata.status == "REJECTED":
+                    messages.error(request, "Your account was rejected.")
+                    return redirect("home")
 
                 login(request, user)
                 return redirect("dashboard")
@@ -51,6 +53,7 @@ def home(request):
 
     return render(request, "auth/home.html")
 
+
 def register(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -59,51 +62,35 @@ def register(request):
         confirm_password = request.POST.get("confirm_password")
 
         if password != confirm_password:
-            return render(request, "auth/register.html", {
-                "error": "Passwords do not match"
-            })
+            return render(request, "auth/register.html", {"error": "Passwords do not match"})
 
         if User.objects.filter(username=username).exists():
-            return render(request, "auth/register.html", {
-                "error": "Username already exists"
-            })
+            return render(request, "auth/register.html", {"error": "Username already exists"})
 
         if User.objects.filter(email=email).exists():
-            return render(request, "auth/register.html", {
-                "error": "Email already registered"
-            })
+            return render(request, "auth/register.html", {"error": "Email already registered"})
 
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password
-        )
+        user = User.objects.create_user(username=username, email=email, password=password)
 
-        # Create metadata with PENDING status
-        from admin_module.models import SystemMetadata
-        SystemMetadata.objects.create(
-            user=user,
-            status="PENDING"
-        )
+        AlumniProfile.objects.get_or_create(user=user)
 
+        SystemMetadata.objects.get_or_create(user=user, defaults={"status": "PENDING"})
+
+        login(request, user)
         return redirect("complete_profile")
 
     return render(request, "auth/register.html")
 
 @login_required
 def dashboard(request):
-
-    # 🔥 Check approval using Alumni model
-    alumni = Alumni.objects.filter(user=request.user).first()
-
-    if not alumni or alumni.status != "APPROVED":
+    metadata = SystemMetadata.objects.filter(user=request.user).first()
+    if not metadata or metadata.status != "APPROVED":
         return redirect("waiting_approval")
 
     profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
     professional = ProfessionalDetails.objects.filter(user=request.user).first()
     academic = AcademicDetails.objects.filter(user=request.user).first()
     contact = ContactDetails.objects.filter(user=request.user).first()
-
     posts = Post.objects.filter(user=request.user)
 
     return render(request, "alumni/dashboard.html", {
@@ -116,104 +103,86 @@ def dashboard(request):
         "following_count": 0,
     })
 
-def user_logout(request):
-    logout(request)
-    return redirect('home')
-
 @login_required
 def edit_profile(request):
-
     profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
     academic, _ = AcademicDetails.objects.get_or_create(user=request.user)
     professional, _ = ProfessionalDetails.objects.get_or_create(user=request.user)
     contact, _ = ContactDetails.objects.get_or_create(user=request.user)
-    engagement, _ = AlumniEngagement.objects.get_or_create(
-    user=request.user
-)
-
-
+    engagement, _ = AlumniEngagement.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-
         # Personal
-        profile.first_name = request.POST.get('first_name')
-        profile.last_name = request.POST.get('last_name')
-        profile.gender = request.POST.get('gender')
-        profile.address = request.POST.get('address')
-        profile.city = request.POST.get('city')
-        profile.state = request.POST.get('state')
-        profile.country = request.POST.get('country')
-        profile.postal_code = request.POST.get('postal_code')
+        profile.first_name = request.POST.get('first_name', '')
+        profile.last_name = request.POST.get('last_name', '')
+        profile.gender = request.POST.get('gender', '')
+        profile.address = request.POST.get('address', '')
+        profile.city = request.POST.get('city', '')
+        profile.state = request.POST.get('state', '')
+        profile.country = request.POST.get('country', '')
+        profile.postal_code = request.POST.get('postal_code', '')
         profile.save()
 
         # Academic
-        academic.student_id = request.POST.get('student_id')
-        academic.degree = request.POST.get('degree')
-        academic.department = request.POST.get('department')
+        academic.student_id = request.POST.get('student_id', '')
+        academic.degree = request.POST.get('degree', '')
+        academic.department = request.POST.get('department', '')
         admission = request.POST.get('year_of_admission')
         academic.year_of_admission = int(admission) if admission else None
         graduation = request.POST.get('year_of_graduation')
         academic.year_of_graduation = int(graduation) if graduation else None
-        academic.achievements = request.POST.get('achievements')
+        academic.achievements = request.POST.get('achievements', '')
         academic.save()
 
         # Professional
-        professional.current_designation = request.POST.get('current_designation')
-        professional.current_company = request.POST.get('current_company')
-        professional.industry = request.POST.get('industry')
+        professional.current_designation = request.POST.get('current_designation', '')
+        professional.current_company = request.POST.get('current_company', '')
+        professional.industry = request.POST.get('industry', '')
         year_exp = request.POST.get('year_of_experience')
-        professional.year_of_experience = int(year_exp) if year_exp else None
-        professional.company_location = request.POST.get('company_location')
-        professional.linkedin_profile = request.POST.get('linkedin_profile')
-        professional.career_highlights = request.POST.get('career_highlights')
+        professional.year_of_experience = int(year_exp) if year_exp else 0
+        professional.company_location = request.POST.get('company_location', '')
+        professional.linkedin_profile = request.POST.get('linkedin_profile', '')
+        professional.career_highlights = request.POST.get('career_highlights', '')
         professional.save()
 
-        # Contact
-        contact.email = request.POST.get('contact_email')
-        contact.phone_number = request.POST.get('phone_number')
-        contact.alternate_phone = request.POST.get('alternate_phone')
+        # Contact (keep same as login email)
+        contact.email = request.user.email
+        contact.phone_number = request.POST.get('phone_number', '')
+        contact.alternate_phone = request.POST.get('alternate_phone', '')
         contact.save()
 
-        # Engagement
-        engagement.membership_status = request.POST.get('membership_status')
-
+        # Engagement (checkbox fix)
+        engagement.membership_status = request.POST.get('membership_status', '')
         events = request.POST.get('events_attended')
         engagement.events_attended = int(events) if events else None
-
-        engagement.mentorship_interest = bool(request.POST.get('mentorship_interest'))
+        engagement.mentorship_interest = request.POST.get('mentorship_interest') == 'on'
         engagement.donation_amount = request.POST.get('donation_amount') or None
-        engagement.volunteer_activities = request.POST.get('volunteer_activities')
-        engagement.newsletter_subscription = bool(request.POST.get('newsletter_subscription'))
-
+        engagement.volunteer_activities = request.POST.get('volunteer_activities', '')
+        engagement.newsletter_subscription = request.POST.get('newsletter_subscription') == 'on'
         engagement.save()
 
         return redirect('dashboard')
 
     return render(request, 'alumni/edit_profile.html', {
-    'profile': profile,
-    'academic': academic,
-    'professional': professional,
-    'contact': contact,
-    'engagement': engagement,
-})
+        'profile': profile,
+        'academic': academic,
+        'professional': professional,
+        'contact': contact,
+        'engagement': engagement,
+    })
 
-from django.db.models import Q
-from admin_module.models import SystemMetadata
 
 @login_required
 def alumni_directory(request):
-
     query = request.GET.get('q')
     department = request.GET.get('department')
 
-    profiles = AlumniProfile.objects.all()
-
-    # Show only verified alumni
-    verified_users = SystemMetadata.objects.filter(
-        verified_by_admin=True
+    # Only approved users (SystemMetadata)
+    approved_users = SystemMetadata.objects.filter(
+        status="APPROVED"
     ).values_list('user', flat=True)
 
-    profiles = profiles.filter(user__in=verified_users)
+    profiles = AlumniProfile.objects.filter(user__in=approved_users)
 
     if query:
         profiles = profiles.filter(
@@ -231,21 +200,21 @@ def alumni_directory(request):
     })
 
 
+
 @login_required
 def view_profile(request, user_id):
-
-    metadata = SystemMetadata.objects.filter(
+    approved = SystemMetadata.objects.filter(
         user_id=user_id,
-        verified_by_admin=True
+        status="APPROVED"
     ).first()
 
-    if not metadata:
+    if not approved:
         return redirect('alumni_directory')
 
-    profile = AlumniProfile.objects.get(user_id=user_id)
-    academic = AcademicDetails.objects.get(user_id=user_id)
-    professional = ProfessionalDetails.objects.get(user_id=user_id)
-    contact = ContactDetails.objects.get(user_id=user_id)
+    profile = AlumniProfile.objects.filter(user_id=user_id).first()
+    academic = AcademicDetails.objects.filter(user_id=user_id).first()
+    professional = ProfessionalDetails.objects.filter(user_id=user_id).first()
+    contact = ContactDetails.objects.filter(user_id=user_id).first()
 
     return render(request, 'alumni/view_profile.html', {
         'profile': profile,
@@ -254,7 +223,7 @@ def view_profile(request, user_id):
         'contact': contact,
     })
 
-
+@login_required
 def complete_profile(request):
 
     if request.method == "POST":
@@ -330,3 +299,10 @@ def complete_profile(request):
 
 def waiting_approval(request):
     return render(request, "auth/waiting_approval.html")
+
+from django.contrib.auth import logout
+
+
+def user_logout(request):
+    logout(request)
+    return redirect("home")   # or your login page name

@@ -1,15 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from teacher_module.models import Alumni
+
+from admin_module.models import SystemMetadata   # ✅ correct import
 
 
 def teacher_login(request):
     if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
         user = authenticate(request, username=username, password=password)
 
@@ -26,27 +27,25 @@ def teacher_login(request):
 def teacher_dashboard(request):
     return render(request, 'teacher/teacher_dashboard.html')
 
+
 @login_required
 def verify_alumni(request):
-    if not request.user.is_staff:
-        return redirect('home')
-
-    users = User.objects.all()
-    return render(request, 'teacher/verify_alumni.html', {'users': users})
-
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.models import User
-from .models import SystemMetadata
+    pending = SystemMetadata.objects.filter(status="PENDING").select_related("user")
+    return render(request, "teacher/verify_alumni.html", {"pending": pending})
 
 
+@login_required
 def approve_alumni(request, user_id):
     user = get_object_or_404(User, id=user_id)
 
-    # Get or create Alumni record
-    alumni, created = Alumni.objects.get_or_create(user=user)
-
-    # 👇 THIS IS WHERE YOU PLACE IT
-    alumni.status = "APPROVED"
-    alumni.save()
+    metadata, _ = SystemMetadata.objects.get_or_create(user=user)
+    metadata.status = "APPROVED"
+    metadata.save()
 
     return redirect("verify_alumni")
+
+
+
+def approved_alumni(request):
+    approved = SystemMetadata.objects.filter(status="APPROVED")
+    return render(request, "teacher/approved_alumni.html", {"approved": approved})

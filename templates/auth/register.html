@@ -31,7 +31,16 @@
 
         .subtitle {
             color: #6b7280;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
             font-size: 14px;
         }
 
@@ -93,7 +102,6 @@
                 padding: 30px;
             }
         }
-
     </style>
 </head>
 <body>
@@ -102,7 +110,23 @@
     <h2>Create Account</h2>
     <div class="subtitle">Join the NASC Alumni Network</div>
 
-    <form method="POST">
+    <!-- 🔥 Show direct error -->
+    {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <!-- 🔥 Show Django messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="error-message">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'register' %}">
         {% csrf_token %}
 
         <input type="text" name="username" placeholder="Username" required>
