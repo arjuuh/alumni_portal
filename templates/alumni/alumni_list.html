@@ -1,0 +1,17 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Alumni{% endblock %}
+
+{% block content %}
+  <h1>Alumni</h1>
+
+  <form method="get">
+    <input type="text" name="q" placeholder="Search alumni..." value="{{ request.GET.q }}">
+    <button type="submit">Search</button>
+  </form>
+
+  {% for a in alumni %}
+    <div>{{ a.first_name }} {{ a.last_name }}</div>
+  {% empty %}
+    <p>No alumni found.</p>
+  {% endfor %}
+{% endblock %}

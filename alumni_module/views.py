@@ -172,7 +172,7 @@ def edit_profile(request):
     })
 
 
-@login_required
+"""@login_required
 def alumni_directory(request):
     query = request.GET.get('q')
     department = request.GET.get('department')
@@ -197,7 +197,7 @@ def alumni_directory(request):
 
     return render(request, 'alumni/alumni_directory.html', {
         'profiles': profiles
-    })
+    })"""
 
 
 
@@ -306,3 +306,19 @@ from django.contrib.auth import logout
 def user_logout(request):
     logout(request)
     return redirect("home")   # or your login page name
+
+from .models import AlumniProfile
+
+def alumni_list_view(request):
+    q = request.GET.get("q", "").strip()
+
+    alumni = AlumniProfile.objects.select_related("user").all()
+
+    if q:
+        alumni = alumni.filter(
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q) |
+            Q(user__email__icontains=q)
+        )
+
+    return render(request, "alumni/alumni_list.html", {"alumni": alumni, "q": q})
