@@ -12,4 +12,6 @@ urlpatterns = [
     path('complete-profile/', views.complete_profile, name='complete_profile'),
     path('waiting/', views.waiting_approval, name='waiting_approval'),
     path("alumni/", views.alumni_list_view, name="alumni_list"),
+    path('follow/<int:user_id>/', views.toggle_follow, name='toggle_follow'),
+    path('notifications/read/', views.mark_notifications_read, name='mark_notifications_read'),
 ]

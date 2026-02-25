@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}AlumniHub{% endblock %}</title>
+    <title>{% block title %}NASC AlumniHub{% endblock %}</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -668,6 +668,63 @@
         @media (max-width: 1100px) {
             .two-col { grid-template-columns: 1fr; }
         }
+
+        .notif-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: red;
+            color: white;
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 50%;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 38px;
+            right: 0;
+            width: 300px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            padding: 15px;
+            z-index: 9999;
+        }
+
+        .notif-dropdown.show {
+            display: block;
+        }
+
+        .notif-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .notif-sub {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .following-label {
+            font-size: 12px;
+            color: #4f46e5;
+            font-weight: 500;
+        }
+
+        .follow-btn {
+            background: #4f46e5;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            text-decoration: none;
+        }
+
     </style>
 
     {% block head_extra %}{% endblock %}
@@ -729,37 +786,76 @@
 
 <div class="main-wrapper">
 
-    <div class="topbar">
-        <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+<div class="topbar">
+    <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
 
-        <div class="topbar-right">
-            <div class="topbar-icon"><i class="fas fa-search"></i></div>
-            <div class="topbar-icon">
-                <i class="fas fa-envelope"></i>
-                <span class="badge-dot"></span>
-            </div>
-            <div class="topbar-icon">
-                <i class="fas fa-bell"></i>
-                <span class="badge-dot"></span>
-            </div>
+    <div class="topbar-right">
 
-            <div class="user-pill">
-                {# NOTE: Your pages must pass "profile" in context, otherwise this will error #}
-                {% if profile and profile.photo %}
-                    <img src="{{ profile.photo.url }}" class="user-avatar-sm" alt="avatar">
-                {% else %}
-                    <div class="user-avatar-init">
-                        {% if profile %}
-                            {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+        <div class="topbar-icon"><i class="fas fa-search"></i></div>
+
+        <div class="topbar-icon">
+            <i class="fas fa-envelope"></i>
+            <span class="badge-dot"></span>
+        </div>
+
+        <!-- 🔔 NOTIFICATION WRAPPER -->
+        <div class="topbar-icon notif-wrapper" style="position:relative; cursor:pointer;">
+            <i class="fas fa-bell" id="notifBell"></i>
+
+            {% if notification_count > 0 %}
+            <span class="notif-badge">
+                {{ notification_count }}
+            </span>
+            {% endif %}
+
+            <!-- DROPDOWN -->
+            <div id="notifDropdown" class="notif-dropdown">
+                <h4 style="margin-bottom:10px;">Notifications</h4>
+
+                {% if notification_followers %}
+                    {% for conn in notification_followers %}
+                    <div class="notif-item">
+                        <div>
+                            <strong>{{ conn.follower.username }}</strong>
+                            <div class="notif-sub">started following you</div>
+                        </div>
+
+                        {% if conn.follower.id not in notification_following_ids %}
+                            <a href="{% url 'toggle_follow' conn.follower.id %}"
+                               class="follow-btn">
+                               Follow Back
+                            </a>
                         {% else %}
-                            AU
+                            <span class="following-label">Following</span>
                         {% endif %}
                     </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="notif-item">No new notifications</div>
                 {% endif %}
-                <span class="user-name">{% if profile %}{{ profile.first_name }}{% else %}User{% endif %}</span>
             </div>
         </div>
+
+        <!-- USER -->
+        <div class="user-pill">
+            {% if profile and profile.photo %}
+                <img src="{{ profile.photo.url }}" class="user-avatar-sm" alt="avatar">
+            {% else %}
+                <div class="user-avatar-init">
+                    {% if profile %}
+                        {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+                    {% else %}
+                        AU
+                    {% endif %}
+                </div>
+            {% endif %}
+            <span class="user-name">
+                {% if profile %}{{ profile.first_name }}{% else %}User{% endif %}
+            </span>
+        </div>
+
     </div>
+</div>
 
     <div class="page-content">
         {% block content %}{% endblock %}
@@ -769,5 +865,32 @@
 
 {% block scripts %}{% endblock %}
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const bell = document.getElementById("notifBell");
+    const dropdown = document.getElementById("notifDropdown");
+
+    if (bell) {
+        bell.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+
+            // 🔥 Mark notifications as read
+            fetch("{% url 'mark_notifications_read' %}")
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.querySelector(".notif-badge");
+                    if (badge) badge.style.display = "none";
+                });
+        });
+    }
+
+    document.addEventListener("click", function () {
+        if (dropdown) dropdown.classList.remove("show");
+    });
+
+});
+</script>
 </body>
 </html>

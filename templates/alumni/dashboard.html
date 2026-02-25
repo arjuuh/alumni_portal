@@ -1,7 +1,7 @@
 {% extends "base_dashboard.html" %}
 {% load static %}
 
-{% block title %}AlumniHub – Dashboard{% endblock %}
+{% block title %}NASC AlumniHub – Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
     <div class="hero-text">
         <h2>Hello, {{ profile.first_name }}! 👋</h2>
         <p>
-            Welcome back to your alumni portal.<br>
+            Welcome to your alumni portal.<br>
             {% if professional.current_designation %}
                 You're listed as <strong style="color:#fff">{{ professional.current_designation }}</strong>
                 at {{ professional.current_company }}.
@@ -36,7 +36,6 @@
     </svg>
 </div>
 
-<!-- STATS ROW -->
 <div class="stats-row">
     <div class="stat-card">
         <div class="stat-icon si-purple"><i class="fas fa-user-friends"></i></div>
@@ -45,6 +44,7 @@
             <div class="stat-label">Followers</div>
         </div>
     </div>
+
     <div class="stat-card">
         <div class="stat-icon si-pink"><i class="fas fa-user-plus"></i></div>
         <div>
@@ -52,6 +52,7 @@
             <div class="stat-label">Following</div>
         </div>
     </div>
+
     <div class="stat-card">
         <div class="stat-icon si-green"><i class="fas fa-file-alt"></i></div>
         <div>

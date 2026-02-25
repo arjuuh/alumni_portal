@@ -1,14 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-
 from admin_module.models import SystemMetadata
-from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post, AlumniEngagement
-
+from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post, AlumniEngagement 
+from .models import Connection
 
 def home(request):
     if request.method == "POST":
@@ -83,24 +82,30 @@ def register(request):
 
 @login_required
 def dashboard(request):
+
     metadata = SystemMetadata.objects.filter(user=request.user).first()
+
     if not metadata or metadata.status != "APPROVED":
         return redirect("waiting_approval")
 
     profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
-    professional = ProfessionalDetails.objects.filter(user=request.user).first()
-    academic = AcademicDetails.objects.filter(user=request.user).first()
-    contact = ContactDetails.objects.filter(user=request.user).first()
+
+    followers_count = request.user.followers.count()
+    following_count = request.user.following.count()
+
     posts = Post.objects.filter(user=request.user)
+
+    # 🔥 NEW
+    followers_connections = request.user.followers.select_related("follower")
+    following_ids = request.user.following.values_list("following_id", flat=True)
 
     return render(request, "alumni/dashboard.html", {
         "profile": profile,
-        "professional": professional,
-        "academic": academic,
-        "contact": contact,
+        "followers_count": followers_count,
+        "following_count": following_count,
         "posts": posts,
-        "followers_count": 0,
-        "following_count": 0,
+        "followers_connections": followers_connections,
+        "following_ids": following_ids,
     })
 
 @login_required
@@ -300,14 +305,37 @@ def complete_profile(request):
 def waiting_approval(request):
     return render(request, "auth/waiting_approval.html")
 
-from django.contrib.auth import logout
 
 
 def user_logout(request):
     logout(request)
     return redirect("home")   # or your login page name
 
-from .models import AlumniProfile
+
+
+@login_required
+def toggle_follow(request, user_id):
+    target_user = get_object_or_404(User, id=user_id)
+
+    # Prevent self-follow
+    if request.user == target_user:
+        return redirect("alumni_list")
+
+    connection = Connection.objects.filter(
+        follower=request.user,
+        following=target_user
+    )
+
+    if connection.exists():
+        connection.delete()
+    else:
+        Connection.objects.create(
+            follower=request.user,
+            following=target_user
+        )
+
+    return redirect("alumni_list")
+
 
 def alumni_list_view(request):
     q = request.GET.get("q", "").strip()
@@ -321,4 +349,26 @@ def alumni_list_view(request):
             Q(user__email__icontains=q)
         )
 
-    return render(request, "alumni/alumni_list.html", {"alumni": alumni, "q": q})
+    following_ids = []
+    if request.user.is_authenticated:
+        following_ids = Connection.objects.filter(
+            follower=request.user
+        ).values_list("following_id", flat=True)
+
+    return render(request, "alumni/alumni_list.html", {
+        "alumni": alumni,
+        "q": q,
+        "following_ids": following_ids
+    })
+
+
+from django.http import JsonResponse
+
+@login_required
+def mark_notifications_read(request):
+    Connection.objects.filter(
+        following=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "success"})
