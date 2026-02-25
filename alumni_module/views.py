@@ -214,7 +214,7 @@ def view_profile(request, user_id):
     ).first()
 
     if not approved:
-        return redirect('alumni_directory')
+       return redirect('alumni_list')
 
     profile = AlumniProfile.objects.filter(user_id=user_id).first()
     academic = AcademicDetails.objects.filter(user_id=user_id).first()
