@@ -1,0 +1,82 @@
+{% extends "teacher/teacher_dashboard.html" %}
+{% block content %}
+
+<div style="padding:30px 32px;">
+
+    <!-- Page Header -->
+    <div style="margin-bottom:25px;">
+        <h2 style="font-size:22px;font-weight:800;color:#1c1c2e;">
+            <i class="fas fa-briefcase" style="color:#6c63ff;margin-right:8px;"></i>
+            Post New Job Opportunity
+        </h2>
+        <p style="color:#6b7280;font-size:13px;margin-top:5px;">
+            Share career opportunities with alumni network.
+        </p>
+    </div>
+
+    <!-- Form Card -->
+    <div style="
+        background:#ffffff;
+        border-radius:14px;
+        padding:28px;
+        box-shadow:0 6px 24px rgba(108,99,255,0.08);
+        border:1px solid #e5e7eb;
+        max-width:750px;
+    ">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div style="margin-bottom:18px;">
+                <label style="font-weight:600;font-size:13px;">Job Title</label>
+                <input type="text" name="title" required
+                    style="width:100%;margin-top:6px;padding:12px 14px;
+                           border-radius:8px;border:1px solid #e5e7eb;
+                           font-size:13px;">
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="font-weight:600;font-size:13px;">Company Name</label>
+                <input type="text" name="company" required
+                    style="width:100%;margin-top:6px;padding:12px 14px;
+                           border-radius:8px;border:1px solid #e5e7eb;
+                           font-size:13px;">
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="font-weight:600;font-size:13px;">Location</label>
+                <input type="text" name="location"
+                    style="width:100%;margin-top:6px;padding:12px 14px;
+                           border-radius:8px;border:1px solid #e5e7eb;
+                           font-size:13px;">
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="font-weight:600;font-size:13px;">Job Description</label>
+                <textarea name="description" rows="5" required
+                    style="width:100%;margin-top:6px;padding:12px 14px;
+                           border-radius:8px;border:1px solid #e5e7eb;
+                           font-size:13px;"></textarea>
+            </div>
+
+            <button type="submit"
+                style="
+                    background:#6c63ff;
+                    color:white;
+                    padding:11px 22px;
+                    border:none;
+                    border-radius:8px;
+                    font-size:13px;
+                    font-weight:600;
+                    cursor:pointer;
+                    box-shadow:0 4px 14px rgba(108,99,255,0.3);
+                ">
+                <i class="fas fa-plus"></i> Publish Job
+            </button>
+
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

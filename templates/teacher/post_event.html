@@ -1,0 +1,82 @@
+{% extends "teacher/teacher_dashboard.html" %}
+{% block content %}
+
+<div style="padding:30px 32px;">
+
+    <!-- Page Header -->
+    <div style="margin-bottom:25px;">
+        <h2 style="font-size:22px;font-weight:800;color:#1c1c2e;">
+            <i class="fas fa-calendar-alt" style="color:#ff6584;margin-right:8px;"></i>
+            Post New Event
+        </h2>
+        <p style="color:#6b7280;font-size:13px;margin-top:5px;">
+            Announce alumni meetups, workshops and networking events.
+        </p>
+    </div>
+
+    <!-- Form Card -->
+    <div style="
+        background:#ffffff;
+        border-radius:14px;
+        padding:28px;
+        box-shadow:0 6px 24px rgba(255,101,132,0.08);
+        border:1px solid #e5e7eb;
+        max-width:750px;
+    ">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div style="margin-bottom:18px;">
+                <label style="font-weight:600;font-size:13px;">Event Title</label>
+                <input type="text" name="title" required
+                    style="width:100%;margin-top:6px;padding:12px 14px;
+                           border-radius:8px;border:1px solid #e5e7eb;
+                           font-size:13px;">
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="font-weight:600;font-size:13px;">Event Date</label>
+                <input type="date" name="event_date" required
+                    style="width:100%;margin-top:6px;padding:12px 14px;
+                           border-radius:8px;border:1px solid #e5e7eb;
+                           font-size:13px;">
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="font-weight:600;font-size:13px;">Venue / Location</label>
+                <input type="text" name="location"
+                    style="width:100%;margin-top:6px;padding:12px 14px;
+                           border-radius:8px;border:1px solid #e5e7eb;
+                           font-size:13px;">
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="font-weight:600;font-size:13px;">Event Description</label>
+                <textarea name="description" rows="5" required
+                    style="width:100%;margin-top:6px;padding:12px 14px;
+                           border-radius:8px;border:1px solid #e5e7eb;
+                           font-size:13px;"></textarea>
+            </div>
+
+            <button type="submit"
+                style="
+                    background:#ff6584;
+                    color:white;
+                    padding:11px 22px;
+                    border:none;
+                    border-radius:8px;
+                    font-size:13px;
+                    font-weight:600;
+                    cursor:pointer;
+                    box-shadow:0 4px 14px rgba(255,101,132,0.3);
+                ">
+                <i class="fas fa-calendar-plus"></i> Publish Event
+            </button>
+
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

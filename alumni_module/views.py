@@ -1,11 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-
+from .models import Connection, Opportunity
 from admin_module.models import SystemMetadata
 from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post, AlumniEngagement
 
@@ -81,6 +81,8 @@ def register(request):
 
     return render(request, "auth/register.html")
 
+from .models import Connection   # make sure this import exists
+
 @login_required
 def dashboard(request):
     metadata = SystemMetadata.objects.filter(user=request.user).first()
@@ -93,14 +95,17 @@ def dashboard(request):
     contact = ContactDetails.objects.filter(user=request.user).first()
     posts = Post.objects.filter(user=request.user)
 
+    followers_count = Connection.objects.filter(following=request.user).count()
+    following_count = Connection.objects.filter(follower=request.user).count()
+
     return render(request, "alumni/dashboard.html", {
         "profile": profile,
         "professional": professional,
         "academic": academic,
         "contact": contact,
         "posts": posts,
-        "followers_count": 0,
-        "following_count": 0,
+        "followers_count": followers_count,   # ✅ replace 0
+        "following_count": following_count,   # ✅ replace 0
     })
 
 @login_required
@@ -201,6 +206,8 @@ def alumni_directory(request):
 
 
 
+from .models import Connection   # make sure this import exists
+
 @login_required
 def view_profile(request, user_id):
     approved = SystemMetadata.objects.filter(
@@ -209,18 +216,24 @@ def view_profile(request, user_id):
     ).first()
 
     if not approved:
-        return redirect('alumni_directory')
+        return redirect('alumni_list')
 
     profile = AlumniProfile.objects.filter(user_id=user_id).first()
     academic = AcademicDetails.objects.filter(user_id=user_id).first()
     professional = ProfessionalDetails.objects.filter(user_id=user_id).first()
     contact = ContactDetails.objects.filter(user_id=user_id).first()
 
+    is_following = Connection.objects.filter(
+        follower=request.user,
+        following_id=user_id
+    ).exists()
+
     return render(request, 'alumni/view_profile.html', {
         'profile': profile,
         'academic': academic,
         'professional': professional,
         'contact': contact,
+        'is_following': is_following,   # ✅ ADD THIS TO CONTEXT
     })
 
 @login_required
@@ -307,8 +320,6 @@ def user_logout(request):
     logout(request)
     return redirect("home")   # or your login page name
 
-from .models import AlumniProfile
-
 def alumni_list_view(request):
     q = request.GET.get("q", "").strip()
 
@@ -321,4 +332,66 @@ def alumni_list_view(request):
             Q(user__email__icontains=q)
         )
 
-    return render(request, "alumni/alumni_list.html", {"alumni": alumni, "q": q})
+    following_ids = []
+    if request.user.is_authenticated:
+        following_ids = Connection.objects.filter(
+            follower=request.user
+        ).values_list("following_id", flat=True)
+
+    return render(request, "alumni/alumni_list.html", {
+        "alumni": alumni,
+        "q": q,
+        "following_ids": following_ids
+    })
+
+
+from django.http import JsonResponse
+
+@login_required
+def mark_notifications_read(request):
+    Connection.objects.filter(
+        following=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "success"})
+
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+
+
+
+@login_required
+def toggle_follow(request, user_id):
+
+    if request.method == "POST":
+
+        if request.user.id == user_id:
+            return redirect('alumni_list')
+
+        connection = Connection.objects.filter(
+            follower=request.user,
+            following_id=user_id
+        ).first()
+
+        if connection:
+            connection.delete()
+        else:
+            Connection.objects.create(
+                follower=request.user,
+                following_id=user_id
+            )
+
+    return redirect(request.META.get('HTTP_REFERER', 'alumni_list'))
+
+
+@login_required
+def jobs(request):
+    jobs = Opportunity.objects.filter(opportunity_type='JOB').order_by('-created_at')
+    return render(request, 'alumni/jobs.html', {'jobs': jobs})
+
+
+@login_required
+def events(request):
+    events = Opportunity.objects.filter(opportunity_type='EVENT').order_by('-created_at')
+    return render(request, 'alumni/events.html', {'events': events})

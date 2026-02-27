@@ -1,52 +1,787 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Teacher Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlumniHub – Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f5f5f7;
-            padding: 40px;
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #574fd6;
+            --primary-light: #edeaff;
+            --accent: #ff6584;
+            --green: #22c55e;
+            --green-bg: #dcfce7;
+            --orange: #f97316;
+            --orange-bg: #fff3e8;
+            --sidebar: #2d2a5e;
+            --sidebar-hover: rgba(255,255,255,0.09);
+            --sidebar-active: rgba(255,255,255,0.15);
+            --bg: #f2f3f7;
+            --white: #ffffff;
+            --text: #1c1c2e;
+            --muted: #6b7280;
+            --light: #9ca3af;
+            --border: #e5e7eb;
+            --shadow: 0 2px 10px rgba(0,0,0,0.06);
+            --shadow-hover: 0 6px 24px rgba(108,99,255,0.13);
+            --radius: 14px;
+            --sidebar-w: 210px;
         }
 
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            max-width: 600px;
-            margin: auto;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--sidebar);
+            min-height: 100vh;
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 24px 20px 22px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .brand-icon {
+            width: 34px; height: 34px;
+            background: var(--primary);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .brand-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.2px;
+        }
+
+        .nav-section {
+            padding: 20px 12px 0;
+            flex: 1;
+        }
+
+        .nav-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            padding: 0 8px;
+            margin-bottom: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: 9px;
+            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.18s;
+            margin-bottom: 2px;
+            position: relative;
+        }
+
+        .nav-item i {
+            width: 17px;
+            text-align: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .nav-item:hover {
+            background: var(--sidebar-hover);
+            color: rgba(255,255,255,0.88);
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 5px; bottom: 5px;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .sidebar-bottom {
+            padding: 16px 12px 24px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .logout-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: 9px;
+            color: rgba(255,255,255,0.45);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.18s;
+        }
+
+        .logout-nav:hover {
+            background: rgba(255,101,132,0.12);
+            color: #ff8fa3;
+        }
+
+        .logout-nav i { width: 17px; text-align: center; font-size: 13px; }
+
+        /* ── MAIN ── */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            height: 60px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .t-bell {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 15px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+
+        .t-bell:hover { background: var(--bg); }
+
+        .t-user {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 4px 10px 4px 4px;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .t-user:hover { background: var(--bg); }
+
+        .t-avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 12px; font-weight: 700;
+        }
+
+        .t-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+
+        /* ── PAGE ── */
+        .page { padding: 30px 32px; }
+
+        /* ── WELCOME STRIP ── */
+        .welcome-strip {
+            background: linear-gradient(120deg, var(--sidebar) 0%, #4a3fa8 60%, #6c63ff 100%);
+            border-radius: var(--radius);
+            padding: 28px 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-strip::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -30px;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .welcome-strip::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; right: 160px;
+            width: 160px; height: 160px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .ws-left { position: relative; z-index: 1; }
+
+        .ws-greeting {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 6px;
+        }
+
+        .ws-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.4px;
+            margin-bottom: 6px;
+        }
+
+        .ws-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.65);
+            font-weight: 400;
+        }
+
+        .ws-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ws-badge {
+            background: rgba(255,255,255,0.13);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 10px 18px;
             text-align: center;
         }
 
-        a.button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 20px;
-            background: black;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
+        .ws-badge-num { font-size: 22px; font-weight: 800; color: white; line-height: 1; }
+        .ws-badge-lbl { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 3px; font-weight: 500; }
+
+        /* ── STATS ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
-        a.link {
-            display: block;
-            margin-top: 20px;
-            color: #0071e3;
-            text-decoration: none;
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
         }
+
+        .stat-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+
+        .stat-icon {
+            width: 44px; height: 44px;
+            border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .si-p { background: var(--primary-light); color: var(--primary); }
+        .si-g { background: var(--green-bg);      color: var(--green); }
+        .si-o { background: var(--orange-bg);     color: var(--orange); }
+
+        .stat-val { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -0.5px; }
+        .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+
+        /* ── TWO COL ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 290px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 18px;
+        }
+
+        .card:last-child { margin-bottom: 0; }
+
+        .card-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .card-title i { color: var(--primary); font-size: 13px; }
+
+        .card-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-link:hover { text-decoration: underline; }
+
+        /* ── VERIFY HIGHLIGHT CARD ── */
+        .verify-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #f5f3ff 100%);
+            border: 1.5px solid rgba(108,99,255,0.2);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 18px;
+            transition: all 0.2s;
+        }
+
+        .verify-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+
+        .vc-icon {
+            width: 52px; height: 52px;
+            background: var(--primary);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 22px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(108,99,255,0.35);
+        }
+
+        .vc-text { flex: 1; }
+        .vc-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .vc-sub   { font-size: 12.5px; color: var(--muted); }
+
+        .vc-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            transition: all 0.18s;
+            white-space: nowrap;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(108,99,255,0.3);
+        }
+
+        .vc-btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(108,99,255,0.4); }
+
+        /* ── TABLE ── */
+        .tbl { width: 100%; border-collapse: collapse; }
+
+        .tbl th {
+            text-align: left;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--light);
+            padding: 0 10px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tbl td {
+            padding: 12px 10px;
+            font-size: 13px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        .tbl tr:last-child td { border-bottom: none; }
+        .tbl tr:hover td { background: #fafbff; }
+
+        .p-cell { display: flex; align-items: center; gap: 10px; }
+
+        .p-av {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; font-size: 11px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .p-n { font-weight: 600; font-size: 13px; }
+        .p-d { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+        .pill {
+            display: inline-flex; align-items: center;
+            padding: 3px 9px; border-radius: 20px;
+            font-size: 11px; font-weight: 600;
+        }
+
+        .pill-pending  { background: var(--orange-bg); color: var(--orange); }
+        .pill-verified { background: var(--green-bg);  color: var(--green); }
+
+        .btn-v {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 13px;
+            background: var(--primary);
+            color: white; border: none; border-radius: 7px;
+            font-size: 11.5px; font-weight: 600;
+            cursor: pointer; font-family: 'Inter', sans-serif;
+            text-decoration: none; transition: all 0.18s;
+        }
+
+        .btn-v:hover { background: var(--primary-dark); }
+
+        /* ── RIGHT PANEL ── */
+        .teacher-panel {
+            text-align: center;
+        }
+
+        .tp-av {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 24px; font-weight: 800;
+            margin: 0 auto 12px;
+            box-shadow: 0 4px 16px rgba(108,99,255,0.3);
+        }
+
+        .tp-name { font-size: 16px; font-weight: 700; color: var(--text); }
+        .tp-role { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 4px; margin-bottom: 10px; }
+
+        .tp-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 20px;
+            background: var(--primary-light); color: var(--primary);
+            font-size: 11px; font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .tp-divider { height: 1px; background: var(--border); margin: 0 0 16px; }
+
+        .tp-meta { text-align: left; display: flex; flex-direction: column; gap: 10px; }
+
+        .tp-row { display: flex; align-items: center; justify-content: space-between; }
+        .tp-lbl { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .tp-lbl i { color: var(--primary); font-size: 11px; width: 13px; }
+        .tp-val { font-size: 12.5px; font-weight: 600; color: var(--text); }
+
+        /* ── ACTIVITY FEED ── */
+        .feed { display: flex; flex-direction: column; gap: 0; }
+
+        .feed-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 13px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .feed-item:last-child { border-bottom: none; }
+
+        .feed-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .fd-p { background: var(--primary); }
+        .fd-g { background: var(--green); }
+        .fd-o { background: var(--orange); }
+
+        .feed-text { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+        .feed-time { font-size: 11px; color: var(--light); margin-top: 2px; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-strip { animation: fadeUp 0.4s ease both; }
+        .stats-row     { animation: fadeUp 0.4s 0.07s ease both; }
+        .two-col       { animation: fadeUp 0.4s 0.13s ease both; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Welcome, {{ request.user.username }}</h2>
-    <p>Teacher Control Panel</p>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="nav-section">
+        <div class="nav-label">Menu</div>
 
-    <a href="{% url 'verify_alumni' %}" class="button">Verify Alumni</a>
+        <a href="{% url 'teacher_dashboard' %}" 
+        class="nav-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
 
-    <a href="{% url 'logout' %}" class="link">Logout</a>
-</div>
+        <a href="{% url 'verify_alumni' %}" 
+        class="nav-item {% if request.resolver_match.url_name == 'verify_alumni' %}active{% endif %}">
+            <i class="fas fa-user-check"></i> Verify Alumni
+        </a>
+
+        <div class="nav-label" style="margin-top:15px;">Opportunities</div>
+
+        <a href="{% url 'post_job' %}" class="nav-item">
+            <i class="fas fa-briefcase"></i> Post Job
+        </a>
+
+        <a href="{% url 'post_event' %}" class="nav-item">
+            <i class="fas fa-calendar"></i> Post Event
+        </a>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-title">Teacher Dashboard</div>
+        <div class="topbar-right">
+            <button class="t-bell"><i class="fas fa-bell"></i></button>
+            <div class="t-user">
+                <div class="t-avatar">{{ request.user.username|first|upper }}</div>
+                <span class="t-name">{{ request.user.username }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE -->
+    <div class="page">
+
+        <!-- WELCOME STRIP -->
+        <div class="welcome-strip">
+            <div class="ws-left">
+                <div class="ws-greeting">Teacher Control Panel</div>
+                <div class="ws-name">Hello, {{ request.user.username }}! 👋</div>
+                <div class="ws-sub">Manage alumni verifications and student records from here.</div>
+            </div>
+            <div class="ws-right">
+                <div class="ws-badge">
+                    <div class="ws-badge-num">{{ pending_count }}</div>
+                    <div class="ws-badge-lbl">Pending</div>
+                </div>
+                <div class="ws-badge">
+                    <div class="ws-badge-num">{{ verified_count }}</div>
+                    <div class="ws-badge-lbl">Verified</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon si-p"><i class="fas fa-user-check"></i></div>
+                <div>
+                    <div class="stat-val">{{ verified_count }}</div>
+                    <div class="stat-lbl">Verified Alumni</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon si-o"><i class="fas fa-user-clock"></i></div>
+                <div>
+                    <div class="stat-val">{{ pending_count }}</div>
+                    <div class="stat-lbl">Pending Review</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon si-g"><i class="fas fa-users"></i></div>
+                <div>
+                    <div class="stat-val">{{ total_alumni }}</div>
+                    <div class="stat-lbl">Total Alumni</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TWO COL -->
+        <div class="two-col">
+
+            <!-- LEFT -->
+            <div>
+
+                <!-- VERIFY CTA -->
+                <div class="verify-card">
+                    <div class="vc-icon"><i class="fas fa-user-check"></i></div>
+                    <div class="vc-text">
+                        <div class="vc-title">Verify Alumni</div>
+                        <div class="vc-sub">Review and approve pending alumni registration requests.</div>
+                    </div>
+                    <a href="{% url 'verify_alumni' %}" class="vc-btn">
+                        <i class="fas fa-arrow-right"></i> Go to Verify
+                    </a>
+                </div>
+
+                <!-- PENDING TABLE -->
+                <div class="card">
+                    <div class="card-hdr">
+                        <div class="card-title"><i class="fas fa-user-clock"></i> Pending Verifications</div>
+                        <a href="{% url 'verify_alumni' %}" class="card-link">View all <i class="fas fa-arrow-right" style="font-size:10px"></i></a>
+                    </div>
+                    <table class="tbl">
+                        <thead>
+                            <tr>
+                                <th>Alumni</th>
+                                <th>Batch</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for request in pending_requests %}
+                        <tr>
+                            <td>
+                                <div class="p-cell">
+                                    <div class="p-av">
+                                        {{ request.user.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="p-n">
+                                            {{ request.user.first_name }} {{ request.user.last_name }}
+                                        </div>
+                                        <div class="p-d">
+                                            {{ request.user.email }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td style="color:var(--muted);font-size:12.5px">
+                                {{ request.user.alumniprofile.academicdetails.passout_year|default:"—" }}
+                            </td>
+
+                            <td>
+                                <span class="pill pill-pending">Pending</span>
+                            </td>
+
+                            <td>
+                                <a href="{% url 'teacher_view_alumni' request.user.id %}" class="btn-v">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">
+                                No pending requests
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div><!-- /left -->
+
+            <!-- RIGHT -->
+            <div>
+
+                <!-- TEACHER PROFILE -->
+                <div class="card teacher-panel">
+                    <div class="tp-av">{{ request.user.username|first|upper }}</div>
+                    <div class="tp-name">{{ request.user.username }}</div>
+                    <div class="tp-role">Teacher · AlumniHub</div>
+                    <div class="tp-badge"><i class="fas fa-chalkboard-teacher"></i> Teacher</div>
+
+                    <div class="tp-divider"></div>
+
+                    <div class="tp-meta">
+                        <div class="tp-row">
+                            <span class="tp-lbl"><i class="fas fa-envelope"></i> Email</span>
+                            <span class="tp-val" style="font-size:11.5px;max-width:140px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ request.user.email|default:"—" }}</span>
+                        </div>
+                        <div class="tp-row">
+                            <span class="tp-lbl"><i class="fas fa-shield-alt"></i> Access</span>
+                            <span class="tp-val">Admin</span>
+                        </div>
+                        <div class="tp-row">
+                            <span class="tp-lbl"><i class="fas fa-calendar"></i> Joined</span>
+                            <span class="tp-val">{{ request.user.date_joined|date:"M Y"|default:"—" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+    </div><!-- /page -->
+</div><!-- /main -->
 
 </body>
 </html>

@@ -3,197 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NASC Alumni Portal</title>
+<title>NASC AlumniHub – Login</title>
 
 <style>
 :root {
-    --primary: #2563eb;
-    --secondary: #9333ea;
-    --text-main: #111827;
-    --text-muted: #6b7280;
-    --border: #e5e7eb;
-    --bg-soft: #f5f7ff;
+    --primary: #1e3a8a;
+    --accent: #7c3aed;
+    --glass: rgba(255,255,255,0.15);
+    --border: rgba(255,255,255,0.25);
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
+    font-family: "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: linear-gradient(135deg, #eef2ff, #faf5ff);
+    background: linear-gradient(135deg, #1e3a8a, #7c3aed);
+    overflow: hidden;
     display: flex;
-    justify-content: center;
     align-items: center;
-    color: var(--text-main);
+    justify-content: center;
 }
 
-/* MAIN LAYOUT */
+/* Floating background shapes */
+.bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.25;
+    animation: float 8s infinite ease-in-out;
+}
+
+.shape1 {
+    width: 300px;
+    height: 300px;
+    background: #ffffff;
+    top: -80px;
+    left: -80px;
+}
+
+.shape2 {
+    width: 250px;
+    height: 250px;
+    background: #c4b5fd;
+    bottom: -100px;
+    right: -60px;
+    animation-delay: 2s;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(25px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Main wrapper */
 .wrapper {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 48px;
-    max-width: 1150px;
+    position: relative;
     width: 100%;
-    padding: 32px;
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    border-radius: 28px;
+    overflow: hidden;
+    backdrop-filter: blur(25px);
+    background: var(--glass);
+    border: 1px solid var(--border);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.35);
 }
 
-/* LEFT PANEL */
+/* LEFT SECTION */
 .left {
-    background: #fff;
-    border-radius: 24px;
-    padding: 48px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.08);
-}
-
-.brand {
+    padding: 70px;
+    color: white;
     display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 36px;
-}
-
-.brand-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: #fff;
-    font-size: 22px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
 }
 
-.brand h1 {
-    margin: 0;
-    font-size: 26px;
+.left h1 {
+    font-size: 42px;
+    margin-bottom: 15px;
 }
 
-.brand span {
-    display: block;
-    margin-top: 4px;
-    font-size: 14px;
-    color: var(--text-muted);
+.left span {
+    font-weight: 300;
 }
 
-.feature {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 26px;
-}
-
-.feature-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #eef2ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-}
-
-.feature h3 {
-    margin: 0 0 6px;
+.left p {
     font-size: 16px;
+    opacity: 0.9;
+    margin-bottom: 35px;
 }
 
-.feature p {
-    margin: 0;
-    font-size: 14px;
-    color: var(--text-muted);
+.left ul {
+    list-style: none;
+    padding: 0;
 }
 
-.left-footer {
-    margin-top: 36px;
-    padding: 16px 18px;
-    background: #eef2ff;
-    border-radius: 14px;
-    font-size: 14px;
-    color: #3730a3;
+.left ul li {
+    margin-bottom: 14px;
+    font-size: 15px;
 }
 
-/* RIGHT PANEL */
+.left ul li::before {
+    content: "✔";
+    margin-right: 8px;
+}
+
+/* Illustration */
+.illustration {
+    margin-top: 40px;
+}
+
+.illustration svg {
+    width: 100%;
+    max-width: 320px;
+    opacity: 0.95;
+}
+
+/* RIGHT SECTION */
 .right {
-    background: #fff;
-    border-radius: 24px;
-    padding: 48px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+    background: white;
+    padding: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .right h2 {
-    margin: 0 0 6px;
-    font-size: 30px;
+    margin: 0;
+    font-size: 26px;
+    color: var(--text-dark);
 }
 
 .right p {
-    margin: 0 0 36px;
-    font-size: 15px;
+    margin: 8px 0 30px;
+    font-size: 14px;
     color: var(--text-muted);
 }
 
 label {
     font-size: 14px;
     font-weight: 500;
-    display: block;
     margin-bottom: 6px;
+    display: block;
 }
 
-input[type="email"],
-input[type="password"] {
+input {
     width: 100%;
     padding: 14px 16px;
     border-radius: 12px;
-    border: 1px solid var(--border);
-    font-size: 15px;
-    margin-bottom: 22px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 18px;
+    font-size: 14px;
+    transition: 0.3s;
 }
 
 input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    box-shadow: 0 0 0 3px rgba(30,58,138,0.15);
 }
 
-/* OPTIONS */
-.options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    margin-bottom: 28px;
-}
-
-.options a {
-    text-decoration: none;
-    color: var(--primary);
-    font-weight: 500;
-}
-
-/* BUTTON */
 button {
     width: 100%;
-    padding: 16px;
+    padding: 14px;
     border-radius: 14px;
     border: none;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: #fff;
-    font-size: 16px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
     font-weight: 600;
     cursor: pointer;
+    transition: 0.3s;
 }
 
 button:hover {
-    opacity: 0.95;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-/* SIGNUP */
 .signup {
-    margin-top: 26px;
+    margin-top: 20px;
     text-align: center;
     font-size: 14px;
 }
@@ -204,29 +197,27 @@ button:hover {
     text-decoration: none;
 }
 
-/* DEMO BOX */
-.demo {
-    margin-top: 32px;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    font-size: 13px;
-}
-
-.demo h4 {
-    margin: 0 0 10px;
+/* Error Box */
+.error-box {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
     font-size: 14px;
 }
 
-.demo div {
-    margin-bottom: 6px;
-    color: var(--text-muted);
-}
-
-/* RESPONSIVE */
+/* Responsive */
 @media (max-width: 900px) {
     .wrapper {
         grid-template-columns: 1fr;
+    }
+    .left {
+        padding: 40px;
+        text-align: center;
+    }
+    .right {
+        padding: 40px;
     }
 }
 </style>
@@ -234,51 +225,44 @@ button:hover {
 
 <body>
 
+<div class="bg-shape shape1"></div>
+<div class="bg-shape shape2"></div>
+
 <div class="wrapper">
 
     <!-- LEFT -->
     <div class="left">
-        <div class="brand">
-            <div class="brand-icon">A</div>
-            <div>
-                <h1>NASC Alumni Portal</h1>
-                <span>Connect. Network. Grow.</span>
-            </div>
-        </div>
+        <h1>NASC <span>AlumniHub</span></h1>
+        <p>Official Alumni Networking Portal of Naipunnya Arts & Science College</p>
 
-        <div class="feature">
-            <div class="feature-icon">👥</div>
-            <div>
-                <h3>Connect with Alumni</h3>
-                <p>Build meaningful relationships with fellow graduates worldwide</p>
-            </div>
-        </div>
+        <ul>
+            <li>Connect with NASC graduates worldwide</li>
+            <li>Explore career & networking opportunities</li>
+            <li>Participate in alumni events</li>
+            <li>Strengthen the NASC community</li>
+        </ul>
 
-        <div class="feature">
-            <div class="feature-icon">💼</div>
-            <div>
-                <h3>Career Opportunities</h3>
-                <p>Discover job openings and internships shared by alumni</p>
-            </div>
-        </div>
-
-        <div class="feature">
-            <div class="feature-icon">📅</div>
-            <div>
-                <h3>Exclusive Events</h3>
-                <p>Attend networking events and reunions with your community</p>
-            </div>
-        </div>
-
-        <div class="left-footer">
-            <strong>Join 10+ alumni</strong> already connected and thriving
+        <div class="illustration">
+            <svg viewBox="0 0 200 150" fill="none">
+                <circle cx="70" cy="60" r="25" fill="#ffffff" opacity="0.4"/>
+                <rect x="100" y="40" width="60" height="40" rx="8" fill="#ffffff" opacity="0.5"/>
+                <circle cx="140" cy="100" r="20" fill="#ffffff" opacity="0.4"/>
+            </svg>
         </div>
     </div>
 
     <!-- RIGHT -->
     <div class="right">
-        <h2>Welcome Back!</h2>
-        <p>Sign in to continue to your account</p>
+        <h2>Welcome Back 👋</h2>
+        <p>Login to access your NASC Alumni account</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-box">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
         <form method="POST">
             {% csrf_token %}
@@ -289,17 +273,13 @@ button:hover {
             <label>Password</label>
             <input type="password" name="password" placeholder="Enter your password" required>
 
-            <div class="options">
-                <label><input type="checkbox"> Remember me</label>
-            </div>
-
             <button type="submit">Sign In</button>
         </form>
 
         <div class="signup">
-            Don’t have an account? <a href="{% url 'register' %}">Sign Up</a>
+            Don’t have an account?
+            <a href="{% url 'register' %}">Create Account</a>
         </div>
-
     </div>
 
 </div>

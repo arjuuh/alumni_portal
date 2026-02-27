@@ -1,0 +1,22 @@
+{% extends "base_dashboard.html" %}
+{% block title %}Events{% endblock %}
+{% block content %}
+
+<div class="card">
+    <h2 style="margin-bottom:20px;">Upcoming Events</h2>
+
+    {% for event in events %}
+        <div class="post-card">
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.description }}</p>
+            <div class="meta">
+                📍 {{ event.location }} |
+                📅 Event Date: {{ event.event_date }}
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">No events available.</div>
+    {% endfor %}
+</div>
+
+{% endblock %}

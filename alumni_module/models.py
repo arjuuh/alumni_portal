@@ -80,4 +80,26 @@ class Connection(models.Model):
 
     
     def __str__(self):
-        return f"{self.follower.username} -> {self.following.username}"    
+        
+        return f"{self.follower.username} follows {self.following.username}"
+
+class Opportunity(models.Model):
+
+    TYPE_CHOICES = (
+        ('JOB', 'Job'),
+        ('EVENT', 'Event'),
+    )
+
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    opportunity_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    location = models.CharField(max_length=150, blank=True, null=True)
+
+    deadline = models.DateField(blank=True, null=True)
+    event_date = models.DateField(blank=True, null=True)
+
+    posted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.opportunity_type})"

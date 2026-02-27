@@ -1,0 +1,32 @@
+<h2>Alumni Details</h2>
+
+<div class="card">
+    <h3>Personal Info</h3>
+    <p><strong>Name:</strong> {{ alumni_user.first_name }} {{ alumni_user.last_name }}</p>
+    <p><strong>Email:</strong> {{ alumni_user.email }}</p>
+    <p><strong>Gender:</strong> {{ profile.gender }}</p>
+</div>
+
+<div class="card">
+    <h3>Academic Info</h3>
+    <p><strong>Department:</strong> {{ academic.department }}</p>
+    <p><strong>Passout Year:</strong> {{ academic.passout_year }}</p>
+    <p><strong>Register No:</strong> {{ academic.register_number }}</p>
+</div>
+
+<div class="card">
+    <h3>Professional Info</h3>
+    <p><strong>Company:</strong> {{ professional.company }}</p>
+    <p><strong>Designation:</strong> {{ professional.designation }}</p>
+</div>
+
+<div style="margin-top:20px;">
+    <a href="{% url 'approve_alumni' alumni_user.id %}" class="btn-v">
+        Approve
+    </a>
+
+    <a href="{% url 'reject_alumni' alumni_user.id %}"
+       style="background:#ef4444;color:white;padding:8px 15px;border-radius:6px;text-decoration:none;">
+        Reject
+    </a>
+</div>

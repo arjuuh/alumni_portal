@@ -6,7 +6,9 @@ urlpatterns = [
     path('dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('verify/', views.verify_alumni, name='verify_alumni'),
     path('approve/<int:user_id>/', views.approve_alumni, name='approve_alumni'),
-
-    # ✅ ADD THIS (for approved list page)
     path('approved-alumni/', views.approved_alumni, name='approved_alumni'),
+    path('post-job/', views.post_job, name='post_job'),
+    path('post-event/', views.post_event, name='post_event'),
+    path('alumni/<int:user_id>/', views.teacher_view_alumni, name='teacher_view_alumni'),
+    path('reject/<int:user_id>/', views.reject_alumni, name='reject_alumni'),
 ]
