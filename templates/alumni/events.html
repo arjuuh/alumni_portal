@@ -7,7 +7,9 @@
 
     {% for event in events %}
         <div class="post-card">
-            <h3>{{ event.title }}</h3>
+            <a href="{% url 'event_detail' event.id %}" class="event-link">
+                <h3>{{ event.title }}</h3>
+            </a>
             <p>{{ event.description }}</p>
             <div class="meta">
                 📍 {{ event.location }} |

@@ -347,17 +347,13 @@ def alumni_list_view(request):
 
 from django.http import JsonResponse
 
-@login_required
-def mark_notifications_read(request):
-    Connection.objects.filter(
-        following=request.user,
-        is_read=False
-    ).update(is_read=True)
-
-    return JsonResponse({"status": "success"})
-
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+
+@login_required
+def mark_notifications_read(request):
+    Connection.objects.filter(following=request.user, is_read=False).update(is_read=True)
+    return redirect(request.META.get("HTTP_REFERER", "dashboard"))
 
 
 
@@ -385,13 +381,27 @@ def toggle_follow(request, user_id):
     return redirect(request.META.get('HTTP_REFERER', 'alumni_list'))
 
 
+from teacher_module.models import JobPost,EventPost
+
 @login_required
 def jobs(request):
-    jobs = Opportunity.objects.filter(opportunity_type='JOB').order_by('-created_at')
-    return render(request, 'alumni/jobs.html', {'jobs': jobs})
+    jobs = JobPost.objects.all().order_by("-id")
+    return render(request, "alumni/jobs.html", {"jobs": jobs})
 
 
 @login_required
 def events(request):
-    events = Opportunity.objects.filter(opportunity_type='EVENT').order_by('-created_at')
-    return render(request, 'alumni/events.html', {'events': events})
+    events = EventPost.objects.all().order_by("-id")
+    return render(request, "alumni/events.html", {"events": events})
+
+from django.shortcuts import get_object_or_404
+
+@login_required
+def job_detail(request, job_id):
+    job = get_object_or_404(JobPost, id=job_id)
+    return render(request, "alumni/job_detail.html", {"job": job})
+
+@login_required
+def event_detail(request, event_id):
+    event = get_object_or_404(EventPost, id=event_id)
+    return render(request, "alumni/event_detail.html", {"event": event})

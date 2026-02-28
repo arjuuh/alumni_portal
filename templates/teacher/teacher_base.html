@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AlumniHub – Teacher{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #6c63ff;
+            --primary-dark: #574fd6;
+            --primary-light: #edeaff;
+            --accent: #ff6584;
+            --green: #22c55e;
+            --green-bg: #dcfce7;
+            --orange: #f97316;
+            --orange-bg: #fff3e8;
+            --sidebar: #2d2a5e;
+            --sidebar-hover: rgba(255,255,255,0.09);
+            --sidebar-active: rgba(255,255,255,0.15);
+            --bg: #f2f3f7;
+            --white: #ffffff;
+            --text: #1c1c2e;
+            --muted: #6b7280;
+            --light: #9ca3af;
+            --border: #e5e7eb;
+            --shadow: 0 2px 10px rgba(0,0,0,0.06);
+            --shadow-hover: 0 6px 24px rgba(108,99,255,0.13);
+            --radius: 14px;
+            --sidebar-w: 210px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--sidebar);
+            min-height: 100vh;
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .nav-section { padding: 20px 12px 0; flex: 1; }
+
+        .nav-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            padding: 0 8px;
+            margin-bottom: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: 9px;
+            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.18s;
+            margin-bottom: 2px;
+            position: relative;
+        }
+
+        .nav-item i { width: 17px; text-align: center; font-size: 13px; flex-shrink: 0; }
+
+        .nav-item:hover { background: var(--sidebar-hover); color: rgba(255,255,255,0.88); }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 5px; bottom: 5px;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TOPBAR */
+        .topbar {
+            height: 60px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+        .t-bell {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 15px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .t-bell:hover { background: var(--bg); }
+
+        .t-user {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 4px 10px 4px 4px;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .t-user:hover { background: var(--bg); }
+
+        .t-avatar {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 12px; font-weight: 700;
+        }
+
+        .t-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+
+        /* PAGE */
+        .page { padding: 30px 32px; }
+
+        /* Simple form styling (used by job/event pages) */
+        .form-wrap { max-width: 860px; }
+        .page-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+        .page-sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .group { margin-bottom: 12px; }
+        label { font-size: 12.5px; font-weight: 700; display:block; margin-bottom: 6px; color: #344054; }
+        input, textarea {
+            width: 100%;
+            border: 1px solid #d0d5dd;
+            border-radius: 10px;
+            padding: 10px 12px;
+            outline: none;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+        textarea { min-height: 130px; resize: vertical; }
+
+        .actions { display:flex; gap:10px; justify-content:flex-end; margin-top: 14px; }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #d0d5dd;
+            padding: 10px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .msg {
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #d0d5dd;
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="nav-section">
+        <div class="nav-label">Menu</div>
+
+        <a href="{% url 'teacher_dashboard' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+
+        <a href="{% url 'verify_alumni' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'verify_alumni' %}active{% endif %}">
+            <i class="fas fa-user-check"></i> Verify Alumni
+        </a>
+
+        <div class="nav-label" style="margin-top:15px;">Opportunities</div>
+
+        <a href="{% url 'post_job' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'post_job' %}active{% endif %}">
+            <i class="fas fa-briefcase"></i> Post Job
+        </a>
+
+        <a href="{% url 'post_event' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'post_event' %}active{% endif %}">
+            <i class="fas fa-calendar"></i> Post Event
+        </a>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-title">{% block topbar_title %}Teacher Dashboard{% endblock %}</div>
+        <div class="topbar-right">
+            <button class="t-bell"><i class="fas fa-bell"></i></button>
+            <div class="t-user">
+                <div class="t-avatar">{{ request.user.username|first|upper }}</div>
+                <span class="t-name">{{ request.user.username }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE -->
+    <div class="page">
+        {% block page_content %}{% endblock %}
+    </div>
+
+</div><!-- /main -->
+
+</body>
+</html>

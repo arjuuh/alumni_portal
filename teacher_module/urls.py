@@ -11,4 +11,7 @@ urlpatterns = [
     path('post-event/', views.post_event, name='post_event'),
     path('alumni/<int:user_id>/', views.teacher_view_alumni, name='teacher_view_alumni'),
     path('reject/<int:user_id>/', views.reject_alumni, name='reject_alumni'),
+    path("delete-job/<int:job_id>/", views.delete_job, name="delete_job"),
+    path("delete-event/<int:event_id>/", views.delete_event, name="delete_event"),
+    
 ]

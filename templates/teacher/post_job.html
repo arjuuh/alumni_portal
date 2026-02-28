@@ -1,82 +1,156 @@
-{% extends "teacher/teacher_dashboard.html" %}
-{% block content %}
+{% extends "teacher/teacher_base.html" %}
 
-<div style="padding:30px 32px;">
+{% block title %}Post Job{% endblock %}
+{% block topbar_title %}Post Job{% endblock %}
 
-    <!-- Page Header -->
-    <div style="margin-bottom:25px;">
-        <h2 style="font-size:22px;font-weight:800;color:#1c1c2e;">
-            <i class="fas fa-briefcase" style="color:#6c63ff;margin-right:8px;"></i>
-            Post New Job Opportunity
-        </h2>
-        <p style="color:#6b7280;font-size:13px;margin-top:5px;">
-            Share career opportunities with alumni network.
-        </p>
-    </div>
+{% block page_content %}
+<div class="form-wrap">
 
-    <!-- Form Card -->
-    <div style="
-        background:#ffffff;
-        border-radius:14px;
-        padding:28px;
-        box-shadow:0 6px 24px rgba(108,99,255,0.08);
-        border:1px solid #e5e7eb;
-        max-width:750px;
-    ">
+    <div class="page-title">Post a Job</div>
+    <div class="page-sub">Add job details and publish.</div>
 
-        <form method="POST">
+    {% if messages %}
+      {% for m in messages %}
+        <div class="msg {% if m.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">
+            {{ m }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- 🔹 POST FORM -->
+    <div class="card">
+        <form method="POST" action="{% url 'post_job' %}">
             {% csrf_token %}
 
-            <div style="margin-bottom:18px;">
-                <label style="font-weight:600;font-size:13px;">Job Title</label>
-                <input type="text" name="title" required
-                    style="width:100%;margin-top:6px;padding:12px 14px;
-                           border-radius:8px;border:1px solid #e5e7eb;
-                           font-size:13px;">
+            <div class="row">
+                <div class="group">
+                    <label>Job Title *</label>
+                    <input type="text" name="title" required placeholder="e.g., Python Developer">
+                </div>
+
+                <div class="group">
+                    <label>Company *</label>
+                    <input type="text" name="company" required placeholder="e.g., Infosys">
+                </div>
             </div>
 
-            <div style="margin-bottom:18px;">
-                <label style="font-weight:600;font-size:13px;">Company Name</label>
-                <input type="text" name="company" required
-                    style="width:100%;margin-top:6px;padding:12px 14px;
-                           border-radius:8px;border:1px solid #e5e7eb;
-                           font-size:13px;">
+            <div class="row">
+                <div class="group">
+                    <label>Location</label>
+                    <input type="text" name="location" placeholder="e.g., Kochi / Remote">
+                </div>
+
+                <div class="group">
+                    <label>Job Type</label>
+                    <select name="job_type">
+                        <option value="">Select Type</option>
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Internship">Internship</option>
+                        <option value="Contract">Contract</option>
+                    </select>
+                </div>
             </div>
 
-            <div style="margin-bottom:18px;">
-                <label style="font-weight:600;font-size:13px;">Location</label>
-                <input type="text" name="location"
-                    style="width:100%;margin-top:6px;padding:12px 14px;
-                           border-radius:8px;border:1px solid #e5e7eb;
-                           font-size:13px;">
+            <div class="group">
+                <label>Apply Link</label>
+                <input type="url" name="apply_link" placeholder="https://company.com/apply">
             </div>
 
-            <div style="margin-bottom:20px;">
-                <label style="font-weight:600;font-size:13px;">Job Description</label>
+            <div class="group">
+                <label>Description *</label>
                 <textarea name="description" rows="5" required
-                    style="width:100%;margin-top:6px;padding:12px 14px;
-                           border-radius:8px;border:1px solid #e5e7eb;
-                           font-size:13px;"></textarea>
+                    placeholder="Mention role responsibilities, requirements, salary (optional), and last date...">
+                </textarea>
             </div>
 
-            <button type="submit"
-                style="
-                    background:#6c63ff;
-                    color:white;
-                    padding:11px 22px;
-                    border:none;
-                    border-radius:8px;
-                    font-size:13px;
-                    font-weight:600;
-                    cursor:pointer;
-                    box-shadow:0 4px 14px rgba(108,99,255,0.3);
-                ">
-                <i class="fas fa-plus"></i> Publish Job
-            </button>
-
+            <div class="actions">
+                <button type="reset" class="btn-secondary">Clear</button>
+                <button type="submit" class="btn-primary">Publish Job</button>
+            </div>
         </form>
     </div>
 
+    <!-- 🔹 TEACHER POSTED JOBS -->
+    <div class="card" style="margin-top:30px;">
+        <h3 style="margin-bottom:15px;">Your Posted Jobs</h3>
+
+        {% if teacher_jobs %}
+            {% for job in teacher_jobs %}
+                <div class="job-item">
+                    <div>
+                        <strong>{{ job.title }}</strong>
+                        <div style="font-size:13px;color:#666;">
+                            {{ job.company }} • {{ job.job_type }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <a href="{% url 'delete_job' job.id %}"
+                           class="delete-btn"
+                           onclick="return confirm('Are you sure you want to delete this job?');">
+                            Delete
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="font-size:14px;color:#777;">No jobs posted yet.</p>
+        {% endif %}
+    </div>
+
 </div>
+
+
+<style>
+.msg {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.msg-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.msg-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    background: white;
+}
+
+.job-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.job-item:last-child {
+    border-bottom: none;
+}
+
+.delete-btn {
+    color: #dc2626;
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.delete-btn:hover {
+    text-decoration: underline;
+}
+</style>
 
 {% endblock %}

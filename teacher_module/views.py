@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from admin_module.models import SystemMetadata
 from alumni_module.models import Opportunity, AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails
+from .models import JobPost, EventPost
+from alumni_module.models import Notification
 
 
 def teacher_login(request):
@@ -63,37 +65,6 @@ def approved_alumni(request):
 
 
 @login_required
-def post_job(request):
-    if request.method == "POST":
-        Opportunity.objects.create(
-            title=request.POST['title'],
-            description=request.POST['description'],
-            opportunity_type='JOB',
-            location=request.POST['location'],
-            deadline=request.POST['deadline'],
-            posted_by=request.user
-        )
-        return redirect('teacher_dashboard')
-
-    return render(request, 'teacher/post_job.html')
-
-
-@login_required
-def post_event(request):
-    if request.method == "POST":
-        Opportunity.objects.create(
-            title=request.POST['title'],
-            description=request.POST['description'],
-            opportunity_type='EVENT',
-            location=request.POST['location'],
-            event_date=request.POST['event_date'],
-            posted_by=request.user
-        )
-        return redirect('teacher_dashboard')
-
-    return render(request, 'teacher/post_event.html')
-
-@login_required
 def teacher_view_alumni(request, user_id):
 
     user = get_object_or_404(User, id=user_id)
@@ -122,3 +93,95 @@ def reject_alumni(request, user_id):
         metadata.save()
 
     return redirect('verify_alumni')
+
+@login_required
+def post_job(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        company = request.POST.get("company")
+        location = request.POST.get("location", "")
+        job_type = request.POST.get("job_type", "")
+        apply_link = request.POST.get("apply_link", "")
+        description = request.POST.get("description")
+
+        if title and company and description:
+            JobPost.objects.create(
+                posted_by=request.user,
+                title=title,
+                company=company,
+                location=location,
+                job_type=job_type,
+                apply_link=apply_link,
+                description=description,
+            )
+            messages.success(request, "Job posted successfully.")
+            return redirect("post_job")   # ✅ stay on post job page
+
+        messages.error(request, "Please fill all required fields.")
+
+    # ✅ IMPORTANT: send teacher's posted jobs to template (for delete list)
+    teacher_jobs = JobPost.objects.filter(
+        posted_by=request.user
+    ).order_by("-id")
+
+    return render(request, "teacher/post_job.html", {
+        "teacher_jobs": teacher_jobs
+    })
+
+@login_required
+def post_event(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        venue = request.POST.get("venue", "")
+        event_date = request.POST.get("event_date")
+        event_time = request.POST.get("event_time", "")
+        registration_link = request.POST.get("registration_link", "")
+        description = request.POST.get("description")
+
+        if title and event_date and description:
+            EventPost.objects.create(
+                posted_by=request.user,
+                title=title,
+                venue=venue,
+                event_date=event_date,
+                event_time=event_time if event_time else None,
+                registration_link=registration_link,
+                description=description,
+            )
+            messages.success(request, "Event posted successfully.")
+            return redirect("post_event")   # 🔹 stay on same page
+
+        messages.error(request, "Please fill all required fields.")
+
+    # 🔹 VERY IMPORTANT – send teacher's events
+    teacher_events = EventPost.objects.filter(
+        posted_by=request.user
+    ).order_by("-id")
+
+    return render(request, "teacher/post_event.html", {
+        "teacher_events": teacher_events
+    })
+
+
+@login_required
+def delete_job(request, job_id):
+    job = get_object_or_404(JobPost, id=job_id, posted_by=request.user)
+
+    job.delete()
+    messages.success(request, "Job deleted successfully.")
+
+    return redirect("teacher_dashboard")
+
+@login_required
+def delete_event(request, event_id):
+    event = get_object_or_404(EventPost, id=event_id, posted_by=request.user)
+
+    event.delete()
+    messages.success(request, "Event deleted successfully.")
+
+    return redirect("teacher_dashboard")
+
+
+
+
+

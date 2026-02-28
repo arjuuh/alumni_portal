@@ -197,28 +197,21 @@ button:hover {
     text-decoration: none;
 }
 
-/* Error Box */
-.error-box {
-    background: #fee2e2;
-    color: #b91c1c;
+/* Message Box */
+.msg-box {
     padding: 12px;
     border-radius: 10px;
     margin-bottom: 15px;
     font-size: 14px;
 }
+.msg-error { background: #fee2e2; color: #b91c1c; }
+.msg-success { background: #dcfce7; color: #166534; }
 
 /* Responsive */
 @media (max-width: 900px) {
-    .wrapper {
-        grid-template-columns: 1fr;
-    }
-    .left {
-        padding: 40px;
-        text-align: center;
-    }
-    .right {
-        padding: 40px;
-    }
+    .wrapper { grid-template-columns: 1fr; }
+    .left { padding: 40px; text-align: center; }
+    .right { padding: 40px; }
 }
 </style>
 </head>
@@ -258,20 +251,21 @@ button:hover {
 
         {% if messages %}
             {% for message in messages %}
-                <div class="error-box">
+                <div class="msg-box {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
 
-        <form method="POST">
+        <!-- ✅ action points to correct url -->
+        <form method="POST" action="{% url 'home' %}">
             {% csrf_token %}
 
             <label>Email Address</label>
-            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="email" name="email" placeholder="Enter your email" required autocomplete="email">
 
             <label>Password</label>
-            <input type="password" name="password" placeholder="Enter your password" required>
+            <input type="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
 
             <button type="submit">Sign In</button>
         </form>

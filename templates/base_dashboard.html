@@ -815,8 +815,8 @@
                 <h4 style="margin-bottom:10px;">Notifications</h4>
 
                 {% if notification_followers %}
-                    {% for conn in notification_followers %}
-                    <div class="notif-item">
+                   {% for conn in notification_followers %}
+                    <div class="notif-item {% if not conn.is_read %}notif-unread{% endif %}">
                         <div>
                             <strong>{{ conn.follower.username }}</strong>
                             <div class="notif-sub">started following you</div>
@@ -824,9 +824,9 @@
 
                         {% if conn.follower.id not in notification_following_ids %}
                             <a href="{% url 'toggle_follow' conn.follower.id %}"
-                               class="follow-btn">
-                               Follow Back
-                            </a>
+                            class="follow-btn">
+                            Follow Back
+                             </a>
                         {% else %}
                             <span class="following-label">Following</span>
                         {% endif %}

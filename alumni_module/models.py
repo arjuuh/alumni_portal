@@ -75,8 +75,9 @@ class Post(models.Model):
         return f"{self.user.username} - {self.created_at}"
     
 class Connection(models.Model):
-    follower = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE)
-    following = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE)
+    follower = models.ForeignKey(User, related_name="following_set", on_delete=models.CASCADE)
+    following = models.ForeignKey(User, related_name="followers_set", on_delete=models.CASCADE)
+    is_read = models.BooleanField(default=False) 
 
     
     def __str__(self):
@@ -103,3 +104,14 @@ class Opportunity(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.opportunity_type})"
+    
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # who receives
+    message = models.TextField()
+    link = models.URLField(blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user.username}"
