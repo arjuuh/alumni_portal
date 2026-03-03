@@ -756,11 +756,12 @@
 
     <a href="{% url 'events' %}" 
     class="nav-item {% if request.resolver_match.url_name == 'events' %}active{% endif %}">
-        <i class="fas fa-calendar-alt"></i> Events
+        <i class="fas fa-flag"></i> Events
     </a>
 
-    <a href="#" class="nav-item">
-        <i class="fas fa-calendar-alt"></i> Calendar
+    <a href="{% url 'messages' %}"
+    class="nav-item {% if request.resolver_match.url_name == 'messages' or request.resolver_match.url_name == 'messages_conv' %}active{% endif %}">
+        <i class="fas fa-comments"></i> Messages
     </a>
 
     <span class="nav-label" style="margin-top:10px;">Account</span>
@@ -777,13 +778,6 @@
         <i class="fas fa-sign-out-alt"></i> Logout
     </a>
 
-    <div class="sidebar-bottom">
-        <div class="premium-card">
-            <div class="pm-icon">⭐</div>
-            <p>Unlock premium alumni network features!</p>
-            <button class="btn-premium">Upgrade Now</button>
-        </div>
-    </div>
 </aside>
 
 <div class="main-wrapper">
@@ -793,7 +787,6 @@
 
     <div class="topbar-right">
 
-        <div class="topbar-icon"><i class="fas fa-search"></i></div>
 
         <div class="topbar-icon">
             <i class="fas fa-envelope"></i>

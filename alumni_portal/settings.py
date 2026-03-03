@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'admin_module',
     'alumni_module',
     'teacher_module',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'alumni_portal.wsgi.application'
+ASGI_APPLICATION = "alumni_portal.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database
@@ -109,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 

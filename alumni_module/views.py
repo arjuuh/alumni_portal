@@ -8,7 +8,10 @@ from django.db.models import Q
 from .models import Connection, Opportunity
 from admin_module.models import SystemMetadata
 from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post, AlumniEngagement
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
+from .models import Conversation, Message
 
 def home(request):
     if request.method == "POST":
@@ -405,3 +408,140 @@ def job_detail(request, job_id):
 def event_detail(request, event_id):
     event = get_object_or_404(EventPost, id=event_id)
     return render(request, "alumni/event_detail.html", {"event": event})
+
+from django.db.models import Count, Q
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+from .models import Conversation, Message
+
+@login_required
+def messages_home(request, conv_id=None):
+    conversations = (
+        Conversation.objects
+        .filter(participants=request.user)
+        .order_by("-updated_at")
+        .prefetch_related("participants")
+        .annotate(
+            unread_count=Count(
+                "messages",
+                filter=Q(messages__is_read=False) & ~Q(messages__sender=request.user)
+            )
+        )
+    )
+    active_conv = None
+    chat_messages = Message.objects.none()
+
+    if conv_id:
+        active_conv = get_object_or_404(Conversation, id=conv_id, participants=request.user)
+        chat_messages = active_conv.messages.select_related("sender").all()
+
+        # ✅ now only mark as read
+        active_conv.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
+
+    return render(request, "alumni/messages.html", {
+        "conversations": conversations,
+        "active_conv": active_conv,
+        "chat_messages": chat_messages,
+    })
+
+@login_required
+def start_conversation(request, user_id):
+    other = get_object_or_404(User, id=user_id)
+
+    if other == request.user:
+        return redirect("messages")
+
+    # Check if conversation already exists between these 2 users
+    existing = (
+        Conversation.objects
+        .filter(participants=request.user)
+        .filter(participants=other)
+        .distinct()
+        .first()
+    )
+
+    if existing:
+        return redirect("messages_conv", conv_id=existing.id)
+
+    conv = Conversation.objects.create()
+    conv.participants.add(request.user, other)
+    return redirect("messages_conv", conv_id=conv.id)
+
+
+from django.views.decorators.csrf import csrf_protect
+
+@login_required
+@require_POST
+@csrf_protect
+def send_message(request):
+    conv_id = request.POST.get("conv_id")
+    text = (request.POST.get("text") or "").strip()
+
+    if not conv_id:
+        return JsonResponse({"ok": False, "error": "conv_id missing"}, status=400)
+
+    if not text:
+        return JsonResponse({"ok": False, "error": "message empty"}, status=400)
+
+    conv = get_object_or_404(Conversation, id=conv_id, participants=request.user)
+
+    # ✅ Create message (ONLY fields that exist in your Message model)
+    msg = Message.objects.create(
+        conversation=conv,
+        sender=request.user,
+        text=text
+    )
+
+    # ✅ bump conversation updated_at (if Conversation has updated_at)
+    Conversation.objects.filter(id=conv.id).update(updated_at=msg.created_at)
+
+    return JsonResponse({
+        "ok": True,
+        "id": msg.id,
+        "text": msg.text,
+        "created_at": msg.created_at.strftime("%I:%M %p"),
+    })
+@login_required
+def fetch_messages(request, conv_id):
+    conv = get_object_or_404(Conversation, id=conv_id, participants=request.user)
+
+    after_id = request.GET.get("after", "0")
+    try:
+        after_id = int(after_id)
+    except ValueError:
+        after_id = 0
+
+    msgs = (
+        conv.messages
+        .select_related("sender")
+        .filter(id__gt=after_id)
+        .order_by("id")[:50]
+    )
+
+    data = [{
+        "id": m.id,
+        "text": m.text,
+        "sender_id": m.sender_id,
+        "sender": m.sender.username,
+        "created_at": m.created_at.strftime("%I:%M %p"),
+    } for m in msgs]
+
+    # mark other user's unread as read
+    conv.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
+
+    return JsonResponse({"ok": True, "messages": data})
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+
+@login_required
+def clear_chat(request, conv_id):
+    if request.method != "POST":
+        return JsonResponse({"ok": False}, status=400)
+
+    conv = get_object_or_404(Conversation, id=conv_id, participants=request.user)
+
+    conv.messages.all().delete()
+
+    return JsonResponse({"ok": True})

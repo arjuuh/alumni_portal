@@ -18,4 +18,10 @@ urlpatterns = [
     path('events/', views.events, name='events'),
     path('jobs/<int:job_id>/', views.job_detail, name='job_detail'),
     path("events/<int:event_id>/", views.event_detail, name="event_detail"),
+    path("messages/", views.messages_home, name="messages"),
+    path("messages/<int:conv_id>/", views.messages_home, name="messages_conv"),
+    path("messages/start/<int:user_id>/", views.start_conversation, name="start_conversation"),
+    path("messages/send/", views.send_message, name="send_message"),
+    path("messages/<int:conv_id>/fetch/", views.fetch_messages, name="fetch_messages"),
+    path("messages/<int:conv_id>/clear/", views.clear_chat, name="clear_chat"),
 ]

@@ -395,26 +395,34 @@
 
     <!-- Follow -->
     {% if a.user != request.user %}
-      <form method="post"
-            action="{% url 'toggle_follow' a.user.id %}"
-            style="display:inline;">
-        {% csrf_token %}
+    <form method="post"
+          action="{% url 'toggle_follow' a.user.id %}"
+          style="display:inline;">
+      {% csrf_token %}
 
-        {% if a.user.id in following_ids %}
-          <button type="submit"
-                  class="follow-btn following"
-                  onclick="event.stopPropagation();">
-            Following
-          </button>
-        {% else %}
-          <button type="submit"
-                  class="follow-btn"
-                  onclick="event.stopPropagation();">
-            Follow
-          </button>
-        {% endif %}
-      </form>
-    {% endif %}
+      {% if a.user.id in following_ids %}
+        <button type="submit"
+                class="follow-btn following"
+                onclick="event.stopPropagation();">
+          Following
+        </button>
+      {% else %}
+        <button type="submit"
+                class="follow-btn"
+                onclick="event.stopPropagation();">
+          Follow
+        </button>
+      {% endif %}
+    </form>
+
+    <!-- MESSAGE BUTTON -->
+    <a href="{% url 'start_conversation' a.user.id %}"
+      class="follow-btn"
+      style="background:#10b981; margin-left:6px;">
+      Message
+    </a>
+
+  {% endif %}
 
     </div>
     {% empty %}
