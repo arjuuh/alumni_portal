@@ -567,3 +567,70 @@ def clear_chat(request, conv_id):
     conv.messages.all().delete()
 
     return JsonResponse({"ok": True})
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    # only owner or admin
+    if post.user != request.user and not request.user.is_superuser:
+        messages.error(request, "You are not allowed to delete this post.")
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        post.delete()
+        messages.success(request, "Post deleted.")
+    return redirect("dashboard")
+
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    # only owner or admin
+    if post.user != request.user and not request.user.is_superuser:
+        messages.error(request, "You are not allowed to edit this post.")
+        return redirect("dashboard")
+
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        image = request.FILES.get("image")
+
+        if not content:
+            messages.error(request, "Post content cannot be empty.")
+            return redirect("dashboard")
+
+        post.content = content
+
+        # optional: if user selects new image, replace old
+        if image:
+            post.image = image
+
+        # optional: remove image checkbox
+        if request.POST.get("remove_image") == "1":
+            post.image = None
+
+        post.save()
+        messages.success(request, "Post updated.")
+    return redirect("dashboard")
+
+@login_required
+def followers_list(request):
+    # People who follow ME
+    # follower -> me
+    qs = Connection.objects.filter(following=request.user).select_related("follower")
+    users = [c.follower for c in qs]
+
+    profiles = AlumniProfile.objects.filter(user__in=users).select_related("user")
+    return render(request, "alumni/followers_list.html", {"profiles": profiles})
+
+
+@login_required
+def following_list(request):
+    # People I follow
+    # me -> following
+    qs = Connection.objects.filter(follower=request.user).select_related("following")
+    users = [c.following for c in qs]
+
+    profiles = AlumniProfile.objects.filter(user__in=users).select_related("user")
+    return render(request, "alumni/following_list.html", {"profiles": profiles})

@@ -24,4 +24,8 @@ urlpatterns = [
     path("messages/send/", views.send_message, name="send_message"),
     path("messages/<int:conv_id>/fetch/", views.fetch_messages, name="fetch_messages"),
     path("messages/<int:conv_id>/clear/", views.clear_chat, name="clear_chat"),
+    path("post/<int:post_id>/delete/", views.delete_post, name="delete_post"),
+    path("post/<int:post_id>/edit/", views.edit_post, name="edit_post"),
+    path("connections/followers/", views.followers_list, name="followers_list"),
+    path("connections/following/", views.following_list, name="following_list"),
 ]

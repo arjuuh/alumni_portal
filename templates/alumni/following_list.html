@@ -1,0 +1,17 @@
+{% for p in profiles %}
+  <div class="conn-row">
+    {% if p.photo %}
+      <img src="{{ p.photo.url }}" class="conn-avatar">
+    {% else %}
+      <div class="conn-avatar-init">
+        {{ p.first_name|first|upper }}{{ p.last_name|first|upper }}
+      </div>
+    {% endif %}
+    <div class="conn-meta">
+      <div class="conn-name">{{ p.first_name }} {{ p.last_name }}</div>
+      <div class="conn-sub">@{{ p.user.username }}</div>
+    </div>
+  </div>
+{% empty %}
+  <div class="conn-empty">Not following anyone yet.</div>
+{% endfor %}

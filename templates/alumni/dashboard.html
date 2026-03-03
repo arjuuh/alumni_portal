@@ -37,22 +37,25 @@
 </div>
 
 <!-- STATS ROW -->
+<!-- STATS ROW -->
 <div class="stats-row">
-    <div class="stat-card">
+    <div class="stat-card" style="cursor:pointer;" onclick="openConnections('followers')">
         <div class="stat-icon si-purple"><i class="fas fa-user-friends"></i></div>
         <div>
             <div class="stat-value">{{ followers_count }}</div>
             <div class="stat-label">Followers</div>
         </div>
     </div>
-    <div class="stat-card">
+
+    <div class="stat-card" style="cursor:pointer;" onclick="openConnections('following')">
         <div class="stat-icon si-pink"><i class="fas fa-user-plus"></i></div>
         <div>
             <div class="stat-value">{{ following_count }}</div>
             <div class="stat-label">Following</div>
         </div>
     </div>
-    <div class="stat-card">
+
+    <div class="stat-card" style="cursor:pointer;" onclick="jumpToPosts()">
         <div class="stat-icon si-green"><i class="fas fa-file-alt"></i></div>
         <div>
             <div class="stat-value">{{ posts|length }}</div>
@@ -60,7 +63,6 @@
         </div>
     </div>
 </div>
-
 <!-- TWO COLUMN LAYOUT -->
 <div class="two-col">
 
@@ -186,9 +188,9 @@
 
             {% for post in posts %}
             <div class="post-card">
-                <div class="post-header">
+                <div class="post-header" style="display:flex; align-items:flex-start; gap:10px;">
 
-                    <!-- 🔥 IMPORTANT CHANGE HERE -->
+                    <!-- Avatar -->
                     {% if post.user.alumniprofile.photo %}
                         <img src="{{ post.user.alumniprofile.photo.url }}" class="post-avatar" alt="">
                     {% else %}
@@ -198,7 +200,8 @@
                         </div>
                     {% endif %}
 
-                    <div>
+                    <!-- Name + time -->
+                    <div style="flex:1;">
                         <div class="post-meta-name">
                             {{ post.user.alumniprofile.first_name }}
                             {{ post.user.alumniprofile.last_name }}
@@ -207,12 +210,82 @@
                             {{ post.created_at|timesince }} ago
                         </div>
                     </div>
+
+                    <!-- ✅ 3 DOT MENU (only for owner) -->
+                    {% if post.user == request.user or request.user.is_superuser %}
+                    <div class="post-actions" style="position:relative;">
+                        <button type="button"
+                                class="dots-btn"
+                                onclick="toggleMenu({{ post.id }})"
+                                style="border:none;background:transparent;font-size:20px;cursor:pointer;padding:2px 8px;border-radius:8px;">
+                            ⋮
+                        </button>
+
+                        <div id="menu-{{ post.id }}"
+                            class="post-menu"
+                            style="display:none; position:absolute; right:0; top:28px; background:#fff;
+                                    border:1px solid #eee; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.08);
+                                    width:140px; padding:6px; z-index:50;">
+
+                            <button type="button"
+                                    onclick="openEdit({{ post.id }})"
+                                    style="width:100%; text-align:left; border:none; background:transparent; padding:10px 10px; border-radius:10px; cursor:pointer; font-weight:600;">
+                                Edit
+                            </button>
+
+                            <form method="POST" action="{% url 'delete_post' post.id %}" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        style="width:100%; text-align:left; border:none; background:transparent; padding:10px 10px;
+                                            border-radius:10px; cursor:pointer; font-weight:600; color:#c70000;">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
-                <div class="post-content">{{ post.content }}</div>
+                <!-- Post content -->
+                <div class="post-content" id="content-{{ post.id }}">{{ post.content }}</div>
 
+                <!-- Post image -->
                 {% if post.image %}
                     <img src="{{ post.image.url }}" class="post-image" alt="Post Image">
+                {% endif %}
+
+                <!-- ✅ Inline Edit Box (hidden by default) -->
+                {% if post.user == request.user or request.user.is_superuser %}
+                <div id="edit-{{ post.id }}" class="edit-box" style="display:none; margin-top:10px;">
+                    <form method="POST" action="{% url 'edit_post' post.id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <textarea name="content"
+                                rows="3"
+                                style="width:100%; border:1px solid #e7e7e7; border-radius:12px; padding:10px; outline:none;">{{ post.content }}</textarea>
+
+                        <div style="margin-top:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                            <input type="file" name="image">
+
+                            {% if post.image %}
+                            <label style="font-size:13px; display:flex; gap:6px; align-items:center;">
+                                <input type="checkbox" name="remove_image" value="1"> Remove image
+                            </label>
+                            {% endif %}
+
+                            <button type="submit"
+                                    style="padding:8px 14px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:#6C63FF; color:#fff;">
+                                Save
+                            </button>
+
+                            <button type="button"
+                                    onclick="closeEdit({{ post.id }})"
+                                    style="padding:8px 14px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:#f3f3f3;">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
                 {% endif %}
             </div>
             {% empty %}
@@ -222,6 +295,7 @@
                     No posts yet. Share something with your alumni network!
                 </div>
             </div>
+
             {% endfor %}
 
         </div>
@@ -365,6 +439,59 @@
 
     </div><!-- /right-col -->
 </div><!-- /two-col -->
+<!-- ✅ Followers/Following Modal CSS -->
+<style>
+  .conn-modal{
+    position:fixed; inset:0; background:rgba(0,0,0,.35);
+    display:none; align-items:center; justify-content:center; z-index:9999;
+  }
+  .conn-modal-box{
+    width:min(520px, 92vw);
+    max-height:70vh;
+    background:#fff; border-radius:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,.2);
+    overflow:hidden;
+  }
+  .conn-modal-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px; border-bottom:1px solid #eee;
+    font-weight:800;
+  }
+  .conn-close{
+    border:none; background:transparent; font-size:24px; cursor:pointer;
+    line-height:1;
+  }
+  .conn-body{ padding:10px 14px; overflow:auto; max-height:calc(70vh - 54px); }
+
+  .conn-row{
+    display:flex; gap:12px; align-items:center;
+    padding:10px; border-radius:12px;
+  }
+  .conn-row:hover{ background:#f6f6f6; }
+  .conn-avatar{ width:44px; height:44px; border-radius:50%; object-fit:cover; }
+  .conn-avatar-init{
+    width:44px; height:44px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:#eef0ff; font-weight:800; color:#6C63FF;
+  }
+  .conn-name{ font-weight:800; }
+  .conn-sub{ font-size:12px; color:#777; }
+  .conn-empty{ padding:16px; text-align:center; color:#777; }
+</style>
+
+<!-- ✅ Followers/Following Modal HTML -->
+<div id="connModal" class="conn-modal">
+  <div class="conn-modal-box">
+    <div class="conn-modal-header">
+      <div id="connTitle" class="conn-title">Followers</div>
+      <button class="conn-close" onclick="closeConnections()">×</button>
+    </div>
+
+    <div id="connBody" class="conn-body">
+      Loading...
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
@@ -449,5 +576,80 @@
 
         renderCalendar();
     });
+    // ... your existing code above ...
+
+    function toggleMenu(id){
+        const menu = document.getElementById(`menu-${id}`);
+        if (!menu) return;
+
+        // close other menus
+        document.querySelectorAll("[id^='menu-']").forEach(m => {
+            if (m !== menu) m.style.display = "none";
+        });
+
+        menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    function openEdit(id){
+        const menu = document.getElementById(`menu-${id}`);
+        if (menu) menu.style.display = "none";
+
+        const editBox = document.getElementById(`edit-${id}`);
+        if (editBox) editBox.style.display = "block";
+    }
+
+    function closeEdit(id){
+        const editBox = document.getElementById(`edit-${id}`);
+        if (editBox) editBox.style.display = "none";
+    }
+
+    // click outside -> close menus
+    document.addEventListener("click", function(e){
+        const isDots = e.target.closest(".dots-btn");
+        const isMenu = e.target.closest(".post-menu");
+        if (!isDots && !isMenu){
+            document.querySelectorAll("[id^='menu-']").forEach(m => m.style.display = "none");
+        }
+    });
+    // ✅ Instagram-style Followers/Following modal
+async function openConnections(type){
+    const modal = document.getElementById("connModal");
+    const title = document.getElementById("connTitle");
+    const body  = document.getElementById("connBody");
+
+    modal.style.display = "flex";
+    body.innerHTML = "Loading...";
+
+    if(type === "followers"){
+        title.innerText = "Followers";
+        const res = await fetch("{% url 'followers_list' %}");
+        body.innerHTML = await res.text();
+    } else {
+        title.innerText = "Following";
+        const res = await fetch("{% url 'following_list' %}");
+        body.innerHTML = await res.text();
+    }
+}
+
+function closeConnections(){
+    document.getElementById("connModal").style.display = "none";
+}
+
+// click outside modal box closes it
+document.addEventListener("click", (e) => {
+    const modal = document.getElementById("connModal");
+    if(modal && modal.style.display === "flex" && e.target === modal){
+        closeConnections();
+    }
+});
+
+// posts stat -> go to posts tab + scroll
+function jumpToPosts(){
+    const postsTabBtn = document.querySelector("button.tab[onclick*=\"'posts'\"]");
+    if(postsTabBtn) postsTabBtn.click();
+
+    const postsSection = document.getElementById("posts");
+    if(postsSection) postsSection.scrollIntoView({behavior:"smooth", block:"start"});
+}
 </script>
 {% endblock %}
