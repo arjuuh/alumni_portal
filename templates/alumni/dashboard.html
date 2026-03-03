@@ -150,24 +150,67 @@
             </div>
         </div>
 
-        <!-- POSTS SECTION -->
+       <!-- POSTS SECTION -->
         <div id="posts" class="section active-section">
+
+            <!-- ✅ ADD POST FORM HERE -->
+            <div class="post-card">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="post-header">
+                        {% if profile.photo %}
+                            <img src="{{ profile.photo.url }}" class="post-avatar" alt="">
+                        {% else %}
+                            <div class="post-avatar-init">
+                                {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+                            </div>
+                        {% endif %}
+
+                        <textarea name="content"
+                                placeholder="Share something with your alumni network..."
+                                required
+                                style="width:100%; border:none; resize:none; outline:none; padding:10px;"></textarea>
+                    </div>
+
+                    <input type="file" name="image" style="margin-top:10px;">
+
+                    <button type="submit"
+                            style="margin-top:10px; padding:8px 16px; background:#6C63FF; color:white; border:none; border-radius:6px;">
+                        Post
+                    </button>
+                </form>
+            </div>
+            <!-- ✅ END FORM -->
+
+
             {% for post in posts %}
             <div class="post-card">
                 <div class="post-header">
-                    {% if profile.photo %}
-                        <img src="{{ profile.photo.url }}" class="post-avatar" alt="">
+
+                    <!-- 🔥 IMPORTANT CHANGE HERE -->
+                    {% if post.user.alumniprofile.photo %}
+                        <img src="{{ post.user.alumniprofile.photo.url }}" class="post-avatar" alt="">
                     {% else %}
                         <div class="post-avatar-init">
-                            {{ profile.first_name|first|upper }}{{ profile.last_name|first|upper }}
+                            {{ post.user.alumniprofile.first_name|first|upper }}
+                            {{ post.user.alumniprofile.last_name|first|upper }}
                         </div>
                     {% endif %}
+
                     <div>
-                        <div class="post-meta-name">{{ profile.first_name }} {{ profile.last_name }}</div>
-                        <div class="post-meta-time">{{ post.created_at|timesince }} ago</div>
+                        <div class="post-meta-name">
+                            {{ post.user.alumniprofile.first_name }}
+                            {{ post.user.alumniprofile.last_name }}
+                        </div>
+                        <div class="post-meta-time">
+                            {{ post.created_at|timesince }} ago
+                        </div>
                     </div>
                 </div>
+
                 <div class="post-content">{{ post.content }}</div>
+
                 {% if post.image %}
                     <img src="{{ post.image.url }}" class="post-image" alt="Post Image">
                 {% endif %}
@@ -180,6 +223,7 @@
                 </div>
             </div>
             {% endfor %}
+
         </div>
 
         <!-- PERSONAL SECTION -->

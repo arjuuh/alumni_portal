@@ -86,6 +86,10 @@ def register(request):
 
 from .models import Connection   # make sure this import exists
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
 @login_required
 def dashboard(request):
     metadata = SystemMetadata.objects.filter(user=request.user).first()
@@ -96,7 +100,25 @@ def dashboard(request):
     professional = ProfessionalDetails.objects.filter(user=request.user).first()
     academic = AcademicDetails.objects.filter(user=request.user).first()
     contact = ContactDetails.objects.filter(user=request.user).first()
-    posts = Post.objects.filter(user=request.user)
+
+    # ✅ CREATE POST (when alumni submits)
+    if request.method == "POST":
+        content = request.POST.get("content")
+        image = request.FILES.get("image")
+
+        if content:
+            Post.objects.create(
+                user=request.user,
+                content=content,
+                image=image
+            )
+            messages.success(request, "Posted successfully!")
+            return redirect("dashboard")
+        else:
+            messages.error(request, "Post content cannot be empty.")
+
+    # ✅ SHOW FEED POSTS (all alumni posts)
+    posts = Post.objects.all().order_by("-created_at")
 
     followers_count = Connection.objects.filter(following=request.user).count()
     following_count = Connection.objects.filter(follower=request.user).count()
@@ -107,8 +129,8 @@ def dashboard(request):
         "academic": academic,
         "contact": contact,
         "posts": posts,
-        "followers_count": followers_count,   # ✅ replace 0
-        "following_count": following_count,   # ✅ replace 0
+        "followers_count": followers_count,
+        "following_count": following_count,
     })
 
 @login_required
