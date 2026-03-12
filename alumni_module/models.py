@@ -107,15 +107,19 @@ class Opportunity(models.Model):
     
 
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # who receives
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_notifications", null=True, blank=True)
+
     message = models.TextField()
     link = models.URLField(blank=True, null=True)
+
+    notification_type = models.CharField(max_length=20, blank=True)  # follow, like, comment
+
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Notification for {self.user.username}"
-    
+        return f"{self.sender} -> {self.user} ({self.notification_type})"
 
 from django.db import models
 from django.contrib.auth.models import User

@@ -10,7 +10,6 @@ from admin_module.models import SystemMetadata
 from .models import AlumniProfile, AcademicDetails, ProfessionalDetails, ContactDetails, Post, AlumniEngagement
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-
 from .models import Conversation, Message
 
 def home(request):
@@ -86,22 +85,21 @@ def register(request):
 
 from .models import Connection   # make sure this import exists
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
 
 @login_required
 def dashboard(request):
     metadata = SystemMetadata.objects.filter(user=request.user).first()
+
     if not metadata or metadata.status != "APPROVED":
         return redirect("waiting_approval")
 
+    # ── USER PROFILE DATA ──
     profile, _ = AlumniProfile.objects.get_or_create(user=request.user)
     professional = ProfessionalDetails.objects.filter(user=request.user).first()
     academic = AcademicDetails.objects.filter(user=request.user).first()
     contact = ContactDetails.objects.filter(user=request.user).first()
 
-    # ✅ CREATE POST (when alumni submits)
+    # ── CREATE POST ──
     if request.method == "POST":
         content = request.POST.get("content")
         image = request.FILES.get("image")
@@ -117,11 +115,26 @@ def dashboard(request):
         else:
             messages.error(request, "Post content cannot be empty.")
 
-    # ✅ SHOW FEED POSTS (all alumni posts)
+    # ── POSTS FEED ──
     posts = Post.objects.all().order_by("-created_at")
 
+    # ── FOLLOW COUNTS ──
     followers_count = Connection.objects.filter(following=request.user).count()
     following_count = Connection.objects.filter(follower=request.user).count()
+
+    # ── NOTIFICATIONS (FOLLOWERS WHO FOLLOWED YOU) ──
+    notification_followers = Connection.objects.filter(
+        following=request.user
+    ).select_related("follower").order_by("-id")
+
+    notification_following_ids = Connection.objects.filter(
+        follower=request.user
+    ).values_list("following_id", flat=True)
+
+    notification_count = Connection.objects.filter(
+        following=request.user,
+        is_read=False
+    ).count()
 
     return render(request, "alumni/dashboard.html", {
         "profile": profile,
@@ -129,8 +142,14 @@ def dashboard(request):
         "academic": academic,
         "contact": contact,
         "posts": posts,
+
         "followers_count": followers_count,
         "following_count": following_count,
+
+        # 🔔 Notification system
+        "notification_followers": notification_followers,
+        "notification_following_ids": notification_following_ids,
+        "notification_count": notification_count,
     })
 
 @login_required
@@ -385,25 +404,25 @@ def mark_notifications_read(request):
 @login_required
 def toggle_follow(request, user_id):
 
-    if request.method == "POST":
+    if request.user.id == user_id:
+        return redirect("dashboard")
 
-        if request.user.id == user_id:
-            return redirect('alumni_list')
+    connection = Connection.objects.filter(
+        follower=request.user,
+        following_id=user_id
+    ).first()
 
-        connection = Connection.objects.filter(
+    if connection:
+        # unfollow
+        connection.delete()
+    else:
+        # follow
+        Connection.objects.create(
             follower=request.user,
             following_id=user_id
-        ).first()
+        )
 
-        if connection:
-            connection.delete()
-        else:
-            Connection.objects.create(
-                follower=request.user,
-                following_id=user_id
-            )
-
-    return redirect(request.META.get('HTTP_REFERER', 'alumni_list'))
+    return redirect(request.META.get("HTTP_REFERER", "dashboard"))
 
 
 from teacher_module.models import JobPost,EventPost
@@ -634,3 +653,24 @@ def following_list(request):
 
     profiles = AlumniProfile.objects.filter(user__in=users).select_related("user")
     return render(request, "alumni/following_list.html", {"profiles": profiles})
+
+
+from .models import Notification
+
+def follow_user(request, user_id):
+
+    user_to_follow = User.objects.get(id=user_id)
+
+    Connection.objects.create(
+        follower=request.user,
+        following=user_to_follow
+    )
+
+    Notification.objects.create(
+        user=user_to_follow,
+        sender=request.user,
+        message=f"{request.user.username} started following you",
+        notification_type="follow"
+    )
+
+    return redirect("dashboard")

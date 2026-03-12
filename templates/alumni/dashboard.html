@@ -18,7 +18,6 @@
             {% endif %}
             Stay connected with your alumni community.
         </p>
-        <button class="btn-hero">Explore Now</button>
     </div>
     <svg class="hero-illustration" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="140" cy="60" r="55" fill="rgba(255,255,255,0.12)"/>
@@ -37,7 +36,7 @@
 </div>
 
 <!-- STATS ROW -->
-<!-- STATS ROW -->
+
 <div class="stats-row">
     <div class="stat-card" style="cursor:pointer;" onclick="openConnections('followers')">
         <div class="stat-icon si-purple"><i class="fas fa-user-friends"></i></div>
@@ -112,21 +111,6 @@
                             ✉ <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
                         {% endif %}
                     </div>
-
-                    <div class="profile-stats">
-                        <div class="pstat">
-                            <div class="pstat-value">{{ followers_count }}</div>
-                            <div class="pstat-label">Followers</div>
-                        </div>
-                        <div class="pstat">
-                            <div class="pstat-value">{{ following_count }}</div>
-                            <div class="pstat-label">Following</div>
-                        </div>
-                        <div class="pstat">
-                            <div class="pstat-value">{{ posts|length }}</div>
-                            <div class="pstat-label">Posts</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -155,12 +139,12 @@
        <!-- POSTS SECTION -->
         <div id="posts" class="section active-section">
 
-            <!-- ✅ ADD POST FORM HERE -->
-            <div class="post-card">
-                <form method="POST" enctype="multipart/form-data">
+            <!-- CREATE POST FORM -->
+            <div class="post-card create-post-card">
+                <form method="POST" enctype="multipart/form-data" id="createPostForm">
                     {% csrf_token %}
 
-                    <div class="post-header">
+                    <div class="post-compose-row">
                         {% if profile.photo %}
                             <img src="{{ profile.photo.url }}" class="post-avatar" alt="">
                         {% else %}
@@ -170,20 +154,29 @@
                         {% endif %}
 
                         <textarea name="content"
-                                placeholder="Share something with your alumni network..."
-                                required
-                                style="width:100%; border:none; resize:none; outline:none; padding:10px;"></textarea>
+                                  id="postTextarea"
+                                  placeholder="Share something with your alumni network…"
+                                  required
+                                  rows="1"
+                                  class="compose-textarea"
+                                  oninput="autoResize(this)"></textarea>
                     </div>
 
-                    <input type="file" name="image" style="margin-top:10px;">
+                    <div class="post-compose-footer">
+                        <label class="attach-label" for="postImageInput" title="Attach image">
+                            <i class="fas fa-image"></i>
+                            <span>Photo</span>
+                            <input type="file" name="image" id="postImageInput" accept="image/*" class="hidden-file-input" onchange="showFileName(this)">
+                        </label>
+                        <span id="attachedFileName" class="attached-filename"></span>
 
-                    <button type="submit"
-                            style="margin-top:10px; padding:8px 16px; background:#6C63FF; color:white; border:none; border-radius:6px;">
-                        Post
-                    </button>
+                        <button type="submit" class="btn-post">
+                            <i class="fas fa-paper-plane"></i> Post
+                        </button>
+                    </div>
                 </form>
             </div>
-            <!-- ✅ END FORM -->
+            <!-- END CREATE POST FORM -->
 
 
             {% for post in posts %}
@@ -273,14 +266,13 @@
                             </label>
                             {% endif %}
 
-                            <button type="submit"
-                                    style="padding:8px 14px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:#6C63FF; color:#fff;">
-                                Save
+                            <button type="submit" class="edit-save-btn">
+                                <i class="fas fa-check" style="margin-right:5px;"></i>Save
                             </button>
 
                             <button type="button"
                                     onclick="closeEdit({{ post.id }})"
-                                    style="padding:8px 14px; border:none; border-radius:10px; cursor:pointer; font-weight:700; background:#f3f3f3;">
+                                    class="edit-cancel-btn">
                                 Cancel
                             </button>
                         </div>
@@ -439,6 +431,185 @@
 
     </div><!-- /right-col -->
 </div><!-- /two-col -->
+<!-- Post Form + Polish Styles -->
+<style>
+  /* ── Create-post card ───────────────────────────── */
+  .create-post-card {
+    border: 1.5px solid #ede9ff;
+    border-radius: 18px;
+    padding: 18px 20px 14px;
+    background: #fff;
+    box-shadow: 0 4px 18px rgba(108,99,255,0.07);
+    margin-bottom: 18px;
+  }
+
+  .post-compose-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .compose-textarea {
+    flex: 1;
+    border: none;
+    resize: none;
+    outline: none;
+    font-size: 15px;
+    font-family: inherit;
+    color: #333;
+    background: transparent;
+    padding: 6px 0;
+    min-height: 42px;
+    max-height: 180px;
+    overflow-y: auto;
+    line-height: 1.55;
+    transition: min-height 0.2s;
+  }
+  .compose-textarea::placeholder { color: #b0a8d8; }
+
+  /* Divider between textarea and footer */
+  .post-compose-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1.5px solid #f0edff;
+  }
+
+  /* Attach label */
+  .attach-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 50px;
+    background: #f4f2ff;
+    color: #6C63FF;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+    white-space: nowrap;
+  }
+  .attach-label:hover { background: #ebe8ff; transform: translateY(-1px); }
+  .attach-label i { font-size: 15px; }
+  .hidden-file-input { display: none; }
+
+  .attached-filename {
+    flex: 1;
+    font-size: 12px;
+    color: #6C63FF;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Post button ────────────────────────────────── */
+  .btn-post {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 22px;
+    background: linear-gradient(135deg, #6C63FF 0%, #857bff 100%);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(108,99,255,0.35);
+    transition: transform 0.18s, box-shadow 0.18s, background 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .btn-post:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(108,99,255,0.45);
+    background: linear-gradient(135deg, #5a52e8 0%, #7b72ff 100%);
+  }
+  .btn-post:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(108,99,255,0.3);
+  }
+  .btn-post i { font-size: 13px; }
+
+  /* ── Edit-form save/cancel buttons ─────────────── */
+  .edit-save-btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    background: linear-gradient(135deg, #6C63FF, #857bff);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(108,99,255,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .edit-save-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(108,99,255,0.4); }
+
+  .edit-cancel-btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    background: #f3f3f3;
+    color: #555;
+    transition: background 0.15s;
+  }
+  .edit-cancel-btn:hover { background: #e8e8e8; }
+
+
+  .tabs-wrap{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    }
+
+    .tab{
+    padding:10px 16px;
+    border-radius:10px;
+    background:#f5f6ff;
+    border:none;
+    font-weight:600;
+    cursor:pointer;
+    }
+
+    .tab.active{
+    background:linear-gradient(135deg,#6C63FF,#857bff);
+    color:#fff;
+    }
+
+    .card{
+border-radius:16px;
+background:#fff;
+box-shadow:0 8px 30px rgba(0,0,0,.06);
+transition:all .25s ease;
+}
+
+.card:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 40px rgba(0,0,0,.08);
+}
+
+.stat-card{
+border-radius:16px;
+padding:18px;
+background:#fff;
+box-shadow:0 8px 24px rgba(0,0,0,.06);
+transition:all .2s ease;
+}
+
+.stat-card:hover{
+transform:translateY(-4px);
+}
+</style>
+
 <!-- ✅ Followers/Following Modal CSS -->
 <style>
   .conn-modal{
@@ -497,6 +668,21 @@
 
 {% block scripts %}
 <script>
+    // ── Post compose helpers ──────────────────────────
+    function autoResize(el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 180) + 'px';
+    }
+
+    function showFileName(input) {
+        const label = document.getElementById('attachedFileName');
+        if (input.files && input.files[0]) {
+            label.textContent = '📎 ' + input.files[0].name;
+        } else {
+            label.textContent = '';
+        }
+    }
+
     function showSection(sectionId, clickedTab) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));

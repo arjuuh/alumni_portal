@@ -1,468 +1,652 @@
 {% extends "base_dashboard.html" %}
-{% block title %}Alumni{% endblock %}
+{% block title %}AlumniHub – Alumni Network{% endblock %}
+{% block page_title %}Alumni Network{% endblock %}
 
 {% block content %}
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  /* ── Design Tokens (matches dashboard) ── */
+  :root {
+    --primary:        #6C63FF;
+    --primary-light:  #ede9ff;
+    --primary-dark:   #5a52e8;
+    --primary-glow:   rgba(108,99,255,0.18);
+    --green:          #10b981;
+    --green-light:    #d1fae5;
+    --pink:           #FF6584;
+    --text-main:      #1a1a2e;
+    --text-sub:       #6b7280;
+    --text-light:     #b0aac8;
+    --bg-page:        #f4f3fb;
+    --bg-card:        #ffffff;
+    --border:         #ede9ff;
+    --radius-card:    18px;
+    --shadow-card:    0 4px 20px rgba(108,99,255,0.08);
+    --shadow-hover:   0 10px 36px rgba(108,99,255,0.16);
+    --transition:     0.22s cubic-bezier(.4,0,.2,1);
   }
 
-  .alumni-page {
-    font-family: 'Poppins', sans-serif;
-    background: #f5f6fa;
-    padding: 28px 30px;
-    min-height: 100%;
+  .al-page {
+    padding: 0 0 60px;
   }
 
-  /* ── Top Bar ── */
-  .alumni-topbar {
+  /* ══ HERO BANNER ══ */
+  .al-hero {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
+    gap: 20px;
+    padding: 26px 30px;
+    background: linear-gradient(135deg, var(--primary) 0%, #857bff 100%);
+    border-radius: var(--radius-card);
+    box-shadow: 0 8px 28px var(--primary-glow);
+    color: #fff;
     margin-bottom: 26px;
-    gap: 16px;
-    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
   }
-
-  .alumni-topbar-left h1 {
+  .al-hero::before {
+    content:'';
+    position:absolute; right:-40px; top:-40px;
+    width:180px; height:180px; border-radius:50%;
+    background:rgba(255,255,255,0.07);
+    pointer-events:none;
+  }
+  .al-hero::after {
+    content:'';
+    position:absolute; right:80px; bottom:-50px;
+    width:120px; height:120px; border-radius:50%;
+    background:rgba(255,255,255,0.05);
+    pointer-events:none;
+  }
+  .al-hero-left h1 {
     font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+  .al-hero-left p {
+    font-size: 13.5px;
+    opacity: 0.82;
+  }
+  .al-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 50px;
+    padding: 9px 20px;
+    font-size: 13.5px;
     font-weight: 700;
-    color: #1c1c2e;
-    line-height: 1.2;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
+  .al-hero-badge i { font-size: 15px; }
 
-  .alumni-topbar-left p {
-    font-size: 12.5px;
-    color: #a0a8c0;
-    margin-top: 3px;
+  /* ══ TOOLBAR ══ */
+  .al-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
   }
-
-  .alumni-topbar-right {
+  .al-count-label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 500;
+  }
+  .al-count-label strong {
+    color: var(--text-main);
+    font-weight: 800;
+  }
+  .al-toolbar-right {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
   }
 
   /* Search */
-  .search-wrap {
+  .al-search-wrap {
     position: relative;
     display: flex;
     align-items: center;
   }
-
-  .search-wrap svg {
+  .al-search-wrap i {
     position: absolute;
-    left: 12px;
-    color: #b0b8ce;
+    left: 13px;
+    color: var(--text-light);
+    font-size: 13px;
     pointer-events: none;
+    transition: color var(--transition);
   }
-
-  .search-wrap input {
+  .al-search-wrap:focus-within i { color: var(--primary); }
+  .al-search-wrap input {
     padding: 9px 14px 9px 36px;
-    border: 1.5px solid #e4e8f0;
-    border-radius: 10px;
-    background: #fff;
-    font-family: 'Poppins', sans-serif;
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    background: var(--bg-card);
     font-size: 13px;
-    color: #1c1c2e;
-    width: 210px;
+    color: var(--text-main);
+    width: 220px;
     outline: none;
-    transition: border-color 0.2s;
+    font-family: inherit;
+    transition: border-color var(--transition), box-shadow var(--transition);
   }
-
-  .search-wrap input:focus {
-    border-color: #4f8ef7;
+  .al-search-wrap input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
   }
+  .al-search-wrap input::placeholder { color: var(--text-light); }
 
-  .search-wrap input::placeholder {
-    color: #b0b8ce;
-  }
-
-  /* Sort dropdown */
-  .sort-wrapper {
+  /* Sort */
+  .al-sort-wrap {
     position: relative;
+    display: flex;
+    align-items: center;
   }
-
-  .sort-wrapper svg {
+  .al-sort-wrap i {
     position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #b0b8ce;
+    right: 12px;
+    color: var(--text-light);
+    font-size: 11px;
     pointer-events: none;
   }
-
-  .sort-wrapper select {
+  .al-sort-wrap select {
     appearance: none;
-    background: #fff;
-    border: 1.5px solid #e4e8f0;
-    border-radius: 10px;
     padding: 9px 32px 9px 14px;
-    font-family: 'Poppins', sans-serif;
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    background: var(--bg-card);
     font-size: 13px;
-    color: #1c1c2e;
+    color: var(--text-main);
+    font-family: inherit;
     cursor: pointer;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color var(--transition);
   }
+  .al-sort-wrap select:focus { border-color: var(--primary); }
 
-  .sort-wrapper select:focus {
-    border-color: #4f8ef7;
-  }
-
-  /* ── Alumni Count ── */
-  .alumni-count {
-    font-size: 12.5px;
-    color: #a0a8c0;
-    margin-bottom: 14px;
-  }
-
-  .alumni-count span {
-    font-weight: 600;
-    color: #1c1c2e;
-  }
-
-  /* ── Grid ── */
-  .alumni-grid {
+  /* ══ GRID ══ */
+  .al-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
     gap: 16px;
   }
 
-  /* ── Card ── */
-  .alumni-card {
-    background: #fff;
-    border-radius: 14px;
-    padding: 16px 14px;
+  /* ══ CARD ══ */
+  .al-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-card);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow-card);
+    padding: 20px 18px 16px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 11px;
-    box-shadow: 0 2px 10px rgba(30, 40, 80, 0.06);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-    min-width: 0;
-    width: 100%;
+    text-align: center;
+    gap: 0;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    animation: fadeUp 0.4s ease both;
+    position: relative;
+    overflow: hidden;
   }
+  .al-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), #857bff);
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .al-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+    border-color: #d4d0ff;
+  }
+  .al-card:hover::before { opacity: 1; }
 
-  .alumni-card:hover {
-    box-shadow: 0 6px 22px rgba(30, 40, 80, 0.11);
-    transform: translateY(-3px);
-  }
+  /* Stagger animation */
+  .al-card:nth-child(1)  { animation-delay: 0.03s; }
+  .al-card:nth-child(2)  { animation-delay: 0.06s; }
+  .al-card:nth-child(3)  { animation-delay: 0.09s; }
+  .al-card:nth-child(4)  { animation-delay: 0.12s; }
+  .al-card:nth-child(5)  { animation-delay: 0.15s; }
+  .al-card:nth-child(6)  { animation-delay: 0.18s; }
+  .al-card:nth-child(7)  { animation-delay: 0.21s; }
+  .al-card:nth-child(8)  { animation-delay: 0.24s; }
 
   /* Avatar */
-  .alumni-avatar-wrap {
+  .al-avatar-wrap {
     position: relative;
-    flex-shrink: 0;
+    margin-bottom: 12px;
   }
-
-  .alumni-avatar-wrap img {
-    width: 50px;
-    height: 50px;
+  .al-avatar {
+    width: 68px;
+    height: 68px;
     border-radius: 50%;
     object-fit: cover;
+    border: 3px solid var(--primary-light);
     display: block;
-    border: 2px solid #eef0f8;
+    transition: border-color var(--transition), box-shadow var(--transition);
   }
-
-  .status-dot {
+  .al-card:hover .al-avatar {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-glow);
+  }
+  .al-avatar-init {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-light), #ddd8ff);
+    color: var(--primary);
+    font-size: 22px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--primary-light);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .al-card:hover .al-avatar-init {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-glow);
+  }
+  .al-status-dot {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 10px;
-    height: 10px;
+    bottom: 3px; right: 3px;
+    width: 13px; height: 13px;
     background: #22c55e;
     border-radius: 50%;
-    border: 2px solid #fff;
+    border: 2.5px solid #fff;
+    box-shadow: 0 1px 4px rgba(34,197,94,0.4);
   }
 
-  /* Info */
-  .alumni-info {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .alumni-info h6 {
-    font-size: 13px;
-    font-weight: 600;
-    color: #1c1c2e;
+  /* Name & meta */
+  .al-name {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.2px;
+    margin-bottom: 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 2px;
+    max-width: 100%;
   }
-
-  .alumni-info .alumni-sub {
-    font-size: 11px;
-    color: #a0a8c0;
+  .al-role {
+    font-size: 12px;
+    color: var(--text-sub);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block;
-    margin-bottom: 4px;
+    max-width: 100%;
+    margin-bottom: 3px;
   }
-
-  .view-profile-link {
+  .al-email {
     font-size: 11.5px;
-    color: #4f8ef7;
-    text-decoration: none;
-    font-weight: 500;
-    display: inline-block;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    margin-bottom: 14px;
   }
 
-  .view-profile-link:hover {
-    text-decoration: underline;
+  /* Divider */
+  .al-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 14px;
+  }
+
+  /* Action row */
+  .al-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* View Profile link-button */
+  .al-btn-profile {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 50px;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 12.5px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    transition: background var(--transition), border-color var(--transition), transform var(--transition);
+    white-space: nowrap;
+  }
+  .al-btn-profile:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-1px);
   }
 
   /* Follow button */
-  .follow-btn {
-    flex-shrink: 0;
-    background: #4f46e5;
+  .al-btn-follow {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--primary), #857bff);
     color: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
     border: none;
-    border-radius: 8px;
-    padding: 6px 11px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 11.5px;
-    font-weight: 500;
     cursor: pointer;
-    transition: background 0.18s;
+    font-family: inherit;
+    transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    box-shadow: 0 3px 10px var(--primary-glow);
     white-space: nowrap;
-    letter-spacing: 0.01em;
+    text-decoration: none;
   }
-
-  .follow-btn:hover {
-    background: #3730c6;
+  .al-btn-follow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 16px rgba(108,99,255,0.35);
   }
+  .al-btn-follow:active { transform: translateY(0); }
 
-  .follow-btn.following {
-    background: #f0f0ff;
-    color: #4f46e5;
+  /* Following state */
+  .al-btn-follow.following {
+    background: var(--primary-light);
+    color: var(--primary);
+    box-shadow: none;
     border: 1.5px solid #c7c4f8;
   }
-
-  /* ── Empty State ── */
-  .alumni-empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
-    color: #a0a8c0;
-    font-size: 14px;
+  .al-btn-follow.following:hover {
+    background: #ffe4e9;
+    color: var(--pink);
+    border-color: var(--pink);
+    box-shadow: none;
   }
 
-  .alumni-empty svg {
-    display: block;
-    margin: 0 auto 14px;
-    opacity: 0.35;
-  }
-
-  /* ── Pagination ── */
-  .alumni-pagination {
-    display: flex;
-    justify-content: space-between;
+  /* Message button */
+  .al-btn-msg {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--green-light);
+    color: var(--green);
+    border: 1.5px solid #a7f3d0;
+    display: inline-flex;
     align-items: center;
-    margin-top: 26px;
+    justify-content: center;
+    font-size: 13px;
+    text-decoration: none;
+    transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    flex-shrink: 0;
+  }
+  .al-btn-msg:hover {
+    background: var(--green);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+  }
+
+  /* ══ EMPTY STATE ══ */
+  .al-empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 70px 20px;
+    color: var(--text-light);
+    gap: 14px;
+    text-align: center;
+  }
+  .al-empty-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    color: var(--primary);
+    opacity: 0.7;
+  }
+  .al-empty p { font-size: 14px; font-weight: 600; color: var(--text-sub); }
+  .al-empty span { font-size: 12.5px; }
+
+  /* ══ PAGINATION ══ */
+  .al-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
+    margin-top: 28px;
   }
-
-  .pagination-info {
+  .al-page-info {
     font-size: 12.5px;
-    color: #a0a8c0;
+    color: var(--text-sub);
   }
-
-  .pagination-btns {
+  .al-page-info strong { color: var(--text-main); }
+  .al-page-btns {
     display: flex;
     gap: 6px;
     align-items: center;
   }
-
-  .page-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: 1.5px solid #e4e8f0;
-    background: #fff;
-    font-family: 'Poppins', sans-serif;
+  .al-page-btn {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-card);
     font-size: 13px;
-    font-weight: 500;
-    color: #5a6278;
-    display: flex;
+    font-weight: 600;
+    color: var(--text-sub);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.15s;
     text-decoration: none;
+    font-family: inherit;
+    transition: all var(--transition);
   }
-
-  .page-btn:hover {
-    border-color: #4f8ef7;
-    color: #4f8ef7;
+  .al-page-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
   }
-
-  .page-btn.active {
-    background: #4f8ef7;
-    border-color: #4f8ef7;
+  .al-page-btn.active {
+    background: linear-gradient(135deg, var(--primary), #857bff);
+    border-color: transparent;
     color: #fff;
+    box-shadow: 0 3px 10px var(--primary-glow);
   }
 
-  /* ── Responsive ── */
-  @media (max-width: 1280px) {
-    .alumni-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  /* ══ ANIMATION ══ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  @media (max-width: 900px) {
-    .alumni-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  /* ══ RESPONSIVE ══ */
+  @media (max-width: 768px) {
+    .al-hero { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .al-toolbar { flex-direction: column; align-items: flex-start; }
+    .al-toolbar-right { width: 100%; }
+    .al-search-wrap input { width: 100%; }
+    .al-search-wrap { flex: 1; }
+    .al-sort-wrap { flex: 1; }
+    .al-sort-wrap select { width: 100%; }
   }
-
-  @media (max-width: 560px) {
-    .alumni-grid {
-      grid-template-columns: 1fr;
-    }
-    .alumni-page {
-      padding: 18px 14px;
-    }
+  @media (max-width: 480px) {
+    .al-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .al-card { padding: 16px 12px 12px; }
+    .al-avatar, .al-avatar-init { width: 54px; height: 54px; font-size: 18px; }
+    .al-name { font-size: 13px; }
+  }
+  @media (max-width: 360px) {
+    .al-grid { grid-template-columns: 1fr; }
   }
 </style>
 
-<div class="alumni-page">
+<div class="al-page">
 
-  <!-- Top Bar -->
-  <div class="alumni-topbar">
-    <div class="alumni-topbar-left">
-      <h1>Alumni</h1>
-      <p>Connect and follow your alumni network</p>
+  <!-- ── Hero Banner ── -->
+  <div class="al-hero">
+    <div class="al-hero-left">
+      <h1><i class="fas fa-users" style="margin-right:10px;opacity:0.9;"></i>Alumni Network</h1>
+      <p>Connect, follow, and message your alumni community</p>
     </div>
-    <div class="alumni-topbar-right">
-      <form method="get">
-        <div class="search-wrap">
-          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-          </svg>
-          <input type="text" name="q" placeholder="Search here..." value="{{ q }}">
+    {% if alumni %}
+    <div class="al-hero-badge">
+      <i class="fas fa-user-graduate"></i>
+      {{ alumni|length }} Alumni
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="al-toolbar">
+    {% if alumni %}
+    <div class="al-count-label">
+      Showing <strong>{{ alumni|length }}</strong> alumni in your network
+    </div>
+    {% else %}
+    <div class="al-count-label">Your alumni network</div>
+    {% endif %}
+
+    <div class="al-toolbar-right">
+      <!-- Search -->
+      <form method="get" style="display:contents;">
+        <div class="al-search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" name="q" placeholder="Search alumni…" value="{{ q }}">
         </div>
       </form>
-      <div class="sort-wrapper">
+
+      <!-- Sort -->
+      <div class="al-sort-wrap">
         <select onchange="location = this.value;">
-          <option value="?sort=newest">Newest</option>
-          <option value="?sort=oldest">Oldest</option>
-          <option value="?sort=az">A – Z</option>
+          <option value="?sort=newest" {% if request.GET.sort == 'newest' or not request.GET.sort %}selected{% endif %}>Newest</option>
+          <option value="?sort=oldest" {% if request.GET.sort == 'oldest' %}selected{% endif %}>Oldest</option>
+          <option value="?sort=az"     {% if request.GET.sort == 'az' %}selected{% endif %}>A – Z</option>
         </select>
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path d="M6 9l6 6 6-6"/>
-        </svg>
+        <i class="fas fa-chevron-down"></i>
       </div>
     </div>
   </div>
 
-  <!-- Count -->
-  {% if alumni %}
-  <p class="alumni-count">Showing <span>1–{{ alumni|length }}</span> from <span>{{ alumni|length }}</span> data</p>
-  {% endif %}
-
-  <!-- Grid -->
-  <div class="alumni-grid">
+  <!-- ── Alumni Grid ── -->
+  <div class="al-grid">
     {% for a in alumni %}
-    <div class="alumni-card">
+    <div class="al-card">
 
       <!-- Avatar -->
-      <div class="alumni-avatar-wrap">
+      <div class="al-avatar-wrap">
         {% if a.photo %}
-          <img src="{{ a.photo.url }}" alt="{{ a.first_name }} {{ a.last_name }}">
+          <img src="{{ a.photo.url }}"
+               alt="{{ a.first_name }} {{ a.last_name }}"
+               class="al-avatar">
         {% else %}
-          <img
-            src="https://ui-avatars.com/api/?name={{ a.first_name|urlencode }}+{{ a.last_name|urlencode }}&background=EEF2FF&color=4f46e5&bold=true&size=100"
-            alt="{{ a.first_name }} {{ a.last_name }}">
+          <div class="al-avatar-init">
+            {{ a.first_name|first|upper }}{{ a.last_name|first|upper }}
+          </div>
         {% endif %}
-        <span class="status-dot"></span>
+        <span class="al-status-dot"></span>
       </div>
 
       <!-- Info -->
-      <div class="alumni-info">
-        <h6>{{ a.first_name }} {{ a.last_name }}</h6>
-        <span class="alumni-sub">{{ a.user.email }}</span>
-        <a href="{% url 'view_profile' a.user.id %}" class="view-profile-link">View profile</a>
-      </div>
+      <div class="al-name">{{ a.first_name }} {{ a.last_name }}</div>
 
-    <!-- Follow -->
-    {% if a.user != request.user %}
-    <form method="post"
-          action="{% url 'toggle_follow' a.user.id %}"
-          style="display:inline;">
-      {% csrf_token %}
-
-      {% if a.user.id in following_ids %}
-        <button type="submit"
-                class="follow-btn following"
-                onclick="event.stopPropagation();">
-          Following
-        </button>
-      {% else %}
-        <button type="submit"
-                class="follow-btn"
-                onclick="event.stopPropagation();">
-          Follow
-        </button>
+      {% if a.user.professionaldetal.current_designation %}
+        <div class="al-role">{{ a.user.professionaldetal.current_designation }}
+          {% if a.user.professionaldetal.current_company %}
+            · {{ a.user.professionaldetal.current_company }}
+          {% endif %}
+        </div>
       {% endif %}
-    </form>
 
-    <!-- MESSAGE BUTTON -->
-    <a href="{% url 'start_conversation' a.user.id %}"
-      class="follow-btn"
-      style="background:#10b981; margin-left:6px;">
-      Message
-    </a>
+      <div class="al-email">{{ a.user.email }}</div>
 
-  {% endif %}
+      <div class="al-divider"></div>
 
+      <!-- Action Buttons -->
+      <div class="al-actions">
+
+        <!-- View Profile -->
+        <a href="{% url 'view_profile' a.user.id %}" class="al-btn-profile">
+          <i class="fas fa-user"></i> Profile
+        </a>
+
+        {% if a.user != request.user %}
+
+          <!-- Follow / Following -->
+          <form method="post" action="{% url 'toggle_follow' a.user.id %}" style="flex:1;display:flex;">
+            {% csrf_token %}
+            {% if a.user.id in following_ids %}
+              <button type="submit" class="al-btn-follow following" style="flex:1;">
+                <i class="fas fa-user-check"></i> Following
+              </button>
+            {% else %}
+              <button type="submit" class="al-btn-follow" style="flex:1;">
+                <i class="fas fa-user-plus"></i> Follow
+              </button>
+            {% endif %}
+          </form>
+
+          <!-- Message -->
+          <a href="{% url 'start_conversation' a.user.id %}" class="al-btn-msg" title="Send message">
+            <i class="fas fa-comment"></i>
+          </a>
+
+        {% endif %}
+
+      </div>
     </div>
+
     {% empty %}
-    <div class="alumni-empty">
-      <svg width="52" height="52" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.3">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-      </svg>
-      No alumni found.
+    <div class="al-empty">
+      <div class="al-empty-icon"><i class="fas fa-user-friends"></i></div>
+      <p>No alumni found</p>
+      <span>Try adjusting your search or check back later</span>
     </div>
     {% endfor %}
   </div>
 
-  <!-- Pagination -->
+  <!-- ── Pagination ── -->
   {% if alumni %}
-  <div class="alumni-pagination">
-    <span class="pagination-info">Showing 1–{{ alumni|length }} from {{ alumni|length }} data</span>
-    <div class="pagination-btns">
-      <a href="#" class="page-btn">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
+  <div class="al-pagination">
+    <span class="al-page-info">
+      Showing <strong>1–{{ alumni|length }}</strong> of <strong>{{ alumni|length }}</strong> alumni
+    </span>
+    <div class="al-page-btns">
+      <a href="#" class="al-page-btn" title="Previous">
+        <i class="fas fa-chevron-left" style="font-size:11px;"></i>
       </a>
-      <a href="#" class="page-btn active">1</a>
-      <a href="#" class="page-btn">2</a>
-      <a href="#" class="page-btn">3</a>
-      <a href="#" class="page-btn">4</a>
-      <a href="#" class="page-btn">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
+      <a href="#" class="al-page-btn active">1</a>
+      <a href="#" class="al-page-btn">2</a>
+      <a href="#" class="al-page-btn">3</a>
+      <span class="al-page-btn" style="cursor:default;border:none;color:var(--text-light);">…</span>
+      <a href="#" class="al-page-btn">8</a>
+      <a href="#" class="al-page-btn" title="Next">
+        <i class="fas fa-chevron-right" style="font-size:11px;"></i>
       </a>
     </div>
   </div>
   {% endif %}
 
 </div>
-
-
-</script>
 
 {% endblock %}

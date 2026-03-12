@@ -1,26 +1,402 @@
 {% extends "base_dashboard.html" %}
-{% block title %}Jobs{% endblock %}
+{% block title %}AlumniHub – Jobs{% endblock %}
+{% block page_title %}Jobs{% endblock %}
+
 {% block content %}
+<style>
+  :root {
+    --primary:       #6C63FF;
+    --primary-light: #ede9ff;
+    --primary-dark:  #5a52e8;
+    --primary-glow:  rgba(108,99,255,0.18);
+    --green:         #10b981;
+    --green-light:   #d1fae5;
+    --pink:          #FF6584;
+    --yellow:        #f59e0b;
+    --yellow-light:  #fef3c7;
+    --teal:          #43C6AC;
+    --teal-light:    #e0f7f4;
+    --red:           #ef4444;
+    --red-light:     #fee2e2;
+    --text-main:     #1a1a2e;
+    --text-sub:      #6b7280;
+    --text-light:    #b0aac8;
+    --bg-card:       #ffffff;
+    --border:        #ede9ff;
+    --radius-card:   18px;
+    --shadow-card:   0 4px 20px rgba(108,99,255,0.08);
+    --shadow-hover:  0 10px 36px rgba(108,99,255,0.15);
+    --transition:    0.22s cubic-bezier(.4,0,.2,1);
+  }
 
-<div class="card">
-    <h2 style="margin-bottom:20px;">Latest Job Opportunities</h2>
+  .jb-page { padding: 0 0 60px; }
 
+  /* ── Hero Banner ── */
+  .jb-hero {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 20px;
+    padding: 26px 30px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2b6b 100%);
+    border-radius: var(--radius-card);
+    box-shadow: 0 8px 28px rgba(26,26,46,0.3);
+    color: #fff; margin-bottom: 26px;
+    position: relative; overflow: hidden;
+  }
+  .jb-hero::before {
+    content:''; position:absolute; right:-40px; top:-40px;
+    width:200px; height:200px; border-radius:50%;
+    background:rgba(108,99,255,0.15); pointer-events:none;
+  }
+  .jb-hero::after {
+    content:''; position:absolute; right:100px; bottom:-60px;
+    width:130px; height:130px; border-radius:50%;
+    background:rgba(108,99,255,0.08); pointer-events:none;
+  }
+  .jb-hero-left h1 {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.3px; margin-bottom: 4px;
+  }
+  .jb-hero-left p { font-size: 13.5px; opacity: 0.75; }
+  .jb-hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(108,99,255,0.25);
+    border: 1px solid rgba(108,99,255,0.4);
+    border-radius: 50px; padding: 9px 20px;
+    font-size: 13.5px; font-weight: 700;
+    white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* ── Toolbar ── */
+  .jb-toolbar {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .jb-count-label { font-size: 13px; color: var(--text-sub); font-weight: 500; }
+  .jb-count-label strong { color: var(--text-main); font-weight: 800; }
+
+  .jb-toolbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .jb-search-wrap { position: relative; display: flex; align-items: center; }
+  .jb-search-wrap i {
+    position: absolute; left: 13px; color: var(--text-light);
+    font-size: 13px; pointer-events: none; transition: color var(--transition);
+  }
+  .jb-search-wrap:focus-within i { color: var(--primary); }
+  .jb-search-wrap input {
+    padding: 9px 14px 9px 36px;
+    border: 1.5px solid var(--border); border-radius: 50px;
+    background: var(--bg-card); font-size: 13px; color: var(--text-main);
+    width: 220px; outline: none; font-family: inherit;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .jb-search-wrap input:focus {
+    border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow);
+  }
+  .jb-search-wrap input::placeholder { color: var(--text-light); }
+
+  /* Filter chips */
+  .jb-filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .jb-chip {
+    padding: 6px 14px; border-radius: 50px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-card); color: var(--text-sub);
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: all var(--transition);
+  }
+  .jb-chip:hover, .jb-chip.active {
+    background: var(--primary-light); border-color: var(--primary); color: var(--primary);
+  }
+
+  /* ── Grid ── */
+  .jb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+  }
+
+  /* ── Card ── */
+  .jb-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-card);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow-card);
+    overflow: hidden; display: flex; flex-direction: column;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    animation: fadeUp 0.4s ease both;
+  }
+  .jb-card:nth-child(1) { animation-delay:.03s; }
+  .jb-card:nth-child(2) { animation-delay:.06s; }
+  .jb-card:nth-child(3) { animation-delay:.09s; }
+  .jb-card:nth-child(4) { animation-delay:.12s; }
+  .jb-card:nth-child(5) { animation-delay:.15s; }
+  .jb-card:nth-child(6) { animation-delay:.18s; }
+  .jb-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+    border-color: #d4d0ff;
+  }
+
+  .jb-card-top {
+    padding: 20px 20px 16px;
+    display: flex; gap: 14px; align-items: flex-start;
+    border-bottom: 1.5px solid #f5f3ff;
+  }
+
+  /* Company logo placeholder */
+  .jb-company-logo {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary-light), #ddd8ff);
+    color: var(--primary); font-size: 18px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; border: 1.5px solid var(--border);
+    transition: box-shadow var(--transition);
+  }
+  .jb-card:hover .jb-company-logo {
+    box-shadow: 0 4px 14px var(--primary-glow);
+  }
+
+  .jb-card-top-info { flex: 1; min-width: 0; }
+  .jb-job-title {
+    font-size: 15px; font-weight: 800;
+    color: var(--text-main); letter-spacing: -0.2px;
+    line-height: 1.35; margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .jb-company-name {
+    font-size: 12.5px; color: var(--text-sub); font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 6px;
+  }
+
+  /* Tag pills */
+  .jb-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .jb-tag {
+    padding: 3px 10px; border-radius: 50px;
+    font-size: 11px; font-weight: 700;
+  }
+  .jb-tag-type    { background: var(--primary-light); color: var(--primary); }
+  .jb-tag-deadline-ok   { background: var(--green-light);  color: var(--green); }
+  .jb-tag-deadline-soon { background: var(--yellow-light); color: var(--yellow); }
+  .jb-tag-deadline-past { background: var(--red-light);    color: var(--red); }
+
+  /* Body */
+  .jb-card-body {
+    padding: 14px 20px 16px; flex: 1;
+  }
+  .jb-desc {
+    font-size: 13px; color: var(--text-sub); line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Meta row */
+  .jb-meta {
+    display: flex; align-items: center; gap: 14px;
+    margin-top: 12px; flex-wrap: wrap;
+  }
+  .jb-meta-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--text-light);
+  }
+  .jb-meta-item i { color: var(--primary); font-size: 11px; }
+
+  /* Footer */
+  .jb-card-footer {
+    padding: 0 20px 18px;
+    display: flex; gap: 8px;
+  }
+  .jb-btn-view {
+    flex: 1; display: inline-flex; align-items: center;
+    justify-content: center; gap: 7px;
+    padding: 9px 16px;
+    background: linear-gradient(135deg, var(--primary), #857bff);
+    color: #fff; border: none; border-radius: 50px;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 3px 10px var(--primary-glow);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .jb-btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(108,99,255,0.38);
+  }
+  .jb-btn-save {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--bg-card); border: 1.5px solid var(--border);
+    color: var(--text-light); font-size: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background var(--transition), color var(--transition), border-color var(--transition);
+    flex-shrink: 0;
+  }
+  .jb-btn-save:hover { background: var(--yellow-light); color: var(--yellow); border-color: var(--yellow); }
+
+  /* Empty state */
+  .jb-empty {
+    grid-column: 1/-1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 70px 20px; gap: 14px; text-align: center;
+  }
+  .jb-empty-icon {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--primary-light); color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; opacity: 0.7;
+  }
+  .jb-empty p    { font-size: 14px; font-weight: 700; color: var(--text-sub); }
+  .jb-empty span { font-size: 12.5px; color: var(--text-light); }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(18px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    .jb-grid { grid-template-columns: 1fr; }
+    .jb-hero  { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .jb-toolbar { flex-direction: column; align-items: flex-start; }
+    .jb-search-wrap input { width: 100%; }
+    .jb-search-wrap { width: 100%; }
+  }
+</style>
+
+<div class="jb-page">
+
+  <!-- Hero -->
+  <div class="jb-hero">
+    <div class="jb-hero-left">
+      <h1><i class="fas fa-briefcase" style="margin-right:10px;opacity:0.9;"></i>Job Opportunities</h1>
+      <p>Discover roles shared by your alumni network — your next career move is here</p>
+    </div>
+    {% if jobs %}
+    <div class="jb-hero-badge">
+      <i class="fas fa-layer-group"></i>
+      {{ jobs|length }} Opening{{ jobs|length|pluralize }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Toolbar -->
+  <div class="jb-toolbar">
+    {% if jobs %}
+    <div class="jb-count-label">
+      Showing <strong>{{ jobs|length }}</strong> job opening{{ jobs|length|pluralize }}
+    </div>
+    {% else %}
+    <div class="jb-count-label">Job Board</div>
+    {% endif %}
+
+    <div class="jb-toolbar-right">
+      <div class="jb-search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="jbSearch" placeholder="Search jobs…">
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="jb-grid" id="jbGrid">
     {% for job in jobs %}
-        <div class="post-card">
-            <h3>
-                <a href="{% url 'job_detail' job.id %}" class="job-link">
-                {{ job.title }}
-                </a>
-            </h3>
-            <p>{{ job.description }}</p>
-            <div class="meta">
-                📍 {{ job.location }} |
-                🗓 Deadline: {{ job.deadline }}
-            </div>
+
+    {# Deadline logic for badge colour #}
+    {% now "Y-m-d" as today %}
+
+    <div class="jb-card" data-title="{{ job.title|lower }} {{ job.description|lower }}">
+
+      <div class="jb-card-top">
+        <!-- Company logo / initial -->
+        <div class="jb-company-logo">
+          {% if job.company %}
+            {{ job.company|first|upper }}
+          {% else %}
+            <i class="fas fa-building"></i>
+          {% endif %}
         </div>
+
+        <div class="jb-card-top-info">
+          <div class="jb-job-title">{{ job.title }}</div>
+          {% if job.company %}
+            <div class="jb-company-name">
+              <i class="fas fa-building" style="margin-right:4px;font-size:10px;"></i>{{ job.company }}
+            </div>
+          {% endif %}
+          <div class="jb-tags">
+            {% if job.job_type %}
+              <span class="jb-tag jb-tag-type">{{ job.job_type }}</span>
+            {% else %}
+              <span class="jb-tag jb-tag-type">Full-time</span>
+            {% endif %}
+            <span class="jb-tag jb-tag-deadline-ok">
+              <i class="fas fa-clock" style="margin-right:3px;"></i>
+              Deadline: {{ job.deadline|date:"M d" }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="jb-card-body">
+        {% if job.description %}
+        <div class="jb-desc">{{ job.description }}</div>
+        {% endif %}
+
+        <div class="jb-meta">
+          <div class="jb-meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ job.location }}</span>
+          </div>
+          <div class="jb-meta-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Posted {{ job.created_at|date:"M d, Y"|default:"Recently" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="jb-card-footer">
+        <a href="{% url 'job_detail' job.id %}" class="jb-btn-view">
+          <i class="fas fa-external-link-alt"></i> View Details
+        </a>
+        <button class="jb-btn-save" title="Save job">
+          <i class="far fa-bookmark"></i>
+        </button>
+      </div>
+    </div>
+
     {% empty %}
-        <div class="empty-state">No jobs available.</div>
+    <div class="jb-empty">
+      <div class="jb-empty-icon"><i class="fas fa-briefcase"></i></div>
+      <p>No job openings right now</p>
+      <span>Check back soon — alumni post new opportunities regularly</span>
+    </div>
     {% endfor %}
+  </div>
+
 </div>
 
+<script>
+  // Live search
+  document.getElementById('jbSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.jb-card[data-title]').forEach(card => {
+      card.style.display = card.dataset.title.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Bookmark toggle
+  document.querySelectorAll('.jb-btn-save').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const icon = this.querySelector('i');
+      const saved = icon.classList.contains('fas');
+      icon.classList.toggle('fas', !saved);
+      icon.classList.toggle('far', saved);
+      this.style.background = saved ? '' : 'var(--yellow-light)';
+      this.style.color      = saved ? '' : 'var(--yellow)';
+      this.style.borderColor= saved ? '' : 'var(--yellow)';
+    });
+  });
+</script>
+
 {% endblock %}
+    

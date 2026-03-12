@@ -725,6 +725,71 @@
             text-decoration: none;
         }
 
+
+        .notif-wrapper{
+            position:relative;
+            cursor:pointer;
+            }
+
+            .notif-title{
+            margin-bottom:10px;
+            font-size:14px;
+            font-weight:700;
+            }
+
+            .notif-item{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:10px 0;
+            border-bottom:1px solid #eee;
+            font-size:13px;
+            }
+
+            .notif-item:last-child{
+            border-bottom:none;
+            }
+
+            .notif-unread{
+            background:#f7f7ff;
+            }
+
+            .notif-text{
+            display:flex;
+            flex-direction:column;
+            }
+
+            .notif-sub{
+            font-size:11px;
+            color:#888;
+            }
+
+            .follow-btn{
+            background:#6C63FF;
+            color:white;
+            border:none;
+            padding:5px 12px;
+            border-radius:8px;
+            font-size:12px;
+            cursor:pointer;
+            }
+
+            .follow-btn:hover{
+            background:#574fe6;
+            }
+
+            .following-label{
+            font-size:12px;
+            color:#4f46e5;
+            font-weight:600;
+            }
+
+            .notif-empty{
+            padding:10px;
+            text-align:center;
+            color:#888;
+            font-size:13px;
+            }
     </style>
 
     {% block head_extra %}{% endblock %}
@@ -794,7 +859,8 @@
         </div>
 
         <!-- 🔔 NOTIFICATION WRAPPER -->
-        <div class="topbar-icon notif-wrapper" style="position:relative; cursor:pointer;">
+        <div class="topbar-icon notif-wrapper">
+
             <i class="fas fa-bell" id="notifBell"></i>
 
             {% if notification_count > 0 %}
@@ -803,32 +869,51 @@
             </span>
             {% endif %}
 
-            <!-- DROPDOWN -->
+            <!-- 🔽 DROPDOWN -->
             <div id="notifDropdown" class="notif-dropdown">
-                <h4 style="margin-bottom:10px;">Notifications</h4>
+
+                <h4 class="notif-title">Notifications</h4>
 
                 {% if notification_followers %}
-                   {% for conn in notification_followers %}
+
+                    {% for conn in notification_followers %}
                     <div class="notif-item {% if not conn.is_read %}notif-unread{% endif %}">
-                        <div>
+
+                        <div class="notif-text">
                             <strong>{{ conn.follower.username }}</strong>
                             <div class="notif-sub">started following you</div>
                         </div>
 
                         {% if conn.follower.id not in notification_following_ids %}
-                            <a href="{% url 'toggle_follow' conn.follower.id %}"
-                            class="follow-btn">
-                            Follow Back
-                             </a>
+
+                        <form method="POST" action="{% url 'toggle_follow' conn.follower.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="follow-btn">
+                                Follow Back
+                            </button>
+                        </form>
+
                         {% else %}
-                            <span class="following-label">Following</span>
+
+                        <span class="following-label">
+                            Following
+                        </span>
+
                         {% endif %}
+
                     </div>
                     {% endfor %}
+
                 {% else %}
-                    <div class="notif-item">No new notifications</div>
+
+                <div class="notif-empty">
+                    No new notifications
+                </div>
+
                 {% endif %}
+
             </div>
+
         </div>
 
         <!-- USER -->

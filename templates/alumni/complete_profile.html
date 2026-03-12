@@ -1,76 +1,144 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Complete Profile</title>
+    <title>Complete Profile – NASC Alumni Network</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 
     <style>
-        body {
+        *, *::before, *::after {
+            box-sizing: border-box;
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 0;
+        }
+
+        :root {
+            --primary: #5b50d6;
+            --primary-dark: #4338ca;
+            --primary-light: #ede9fe;
+            --accent: #7c3aed;
+            --success: #059669;
+            --success-light: #d1fae5;
+            --success-text: #065f46;
+            --text: #1e1b4b;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --bg: #f5f3ff;
+            --card-bg: #ffffff;
+            --radius: 12px;
+            --shadow: 0 20px 60px rgba(91, 80, 214, 0.18);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #5b50d6 0%, #7c3aed 50%, #4338ca 100%);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
+            padding: 40px 16px;
         }
 
+        /* ── Toast message ── */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success-light);
+            color: var(--success-text);
+            padding: 14px 24px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            z-index: 999;
+            border-left: 4px solid var(--success);
+        }
+
+        /* ── Card ── */
         .card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
+            background: var(--card-bg);
             width: 100%;
-            max-width: 600px;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
+            max-width: 560px;
+            border-radius: 24px;
+            padding: 44px 44px 36px;
+            box-shadow: var(--shadow);
         }
 
-        h2 {
-            margin-bottom: 10px;
+        .card-header {
+            margin-bottom: 28px;
         }
 
-        p {
-            color: #6b7280;
+        .card-header h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 26px;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .card-header p {
+            color: var(--muted);
             font-size: 14px;
         }
 
-        /* Progress Bar */
-        .progress-container {
-            margin: 20px 0 30px;
+        /* ── Step indicator ── */
+        .step-indicators {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
-        .progress-bar {
-            height: 8px;
-            background: #e5e7eb;
-            border-radius: 20px;
-            overflow: hidden;
+        .step-dot {
+            flex: 1;
+            height: 4px;
+            border-radius: 99px;
+            background: var(--border);
+            transition: background 0.4s ease;
         }
 
-        .progress {
-            height: 8px;
-            width: 25%;
-            background: linear-gradient(90deg,#667eea,#764ba2);
-            transition: width 0.4s ease;
+        .step-dot.done {
+            background: var(--primary);
         }
 
-        /* Steps */
+        .step-label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .step-label span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* ── Step panels ── */
         .step {
             display: none;
-            animation: fadeIn 0.4s ease;
+            animation: fadeSlide 0.35s ease;
         }
 
         .step.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from {opacity: 0; transform: translateX(10px);}
-            to {opacity: 1; transform: translateX(0);}
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateX(14px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
 
+        .step h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── Floating label inputs ── */
         .input-group {
             position: relative;
             margin-bottom: 20px;
@@ -79,75 +147,197 @@
         .input-group input,
         .input-group select {
             width: 100%;
-            padding: 14px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
+            padding: 14px 14px 6px;
+            border-radius: var(--radius);
+            border: 1.5px solid var(--border);
             font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
             background: transparent;
             outline: none;
+            transition: border-color 0.25s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
         .input-group label {
             position: absolute;
-            top: 14px;
+            top: 50%;
             left: 14px;
+            transform: translateY(-50%);
             font-size: 13px;
-            color: #9ca3af;
-            transition: 0.3s;
+            color: var(--muted);
+            transition: all 0.25s ease;
             pointer-events: none;
+            background: white;
         }
 
+        /* Float label up when filled or focused */
         .input-group input:focus + label,
         .input-group input:not(:placeholder-shown) + label,
-        .input-group select:focus + label {
-            top: -8px;
-            left: 10px;
-            font-size: 11px;
-            background: white;
-            padding: 0 5px;
-            color: #667eea;
+        .input-group select:focus + label,
+        .input-group select.has-value + label {
+            top: 8px;
+            transform: none;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
+        /* Date input always shows value, so always float its label */
+        .input-group input[type="date"] + label {
+            top: 8px;
+            transform: none;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .input-group input[type="date"] {
+            padding-top: 22px;
+            padding-bottom: 6px;
+            color: var(--text);
+        }
+
+        /* Fix select padding */
+        .input-group select {
+            padding-top: 20px;
+            padding-bottom: 6px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            cursor: pointer;
+        }
+
+        /* Two columns for paired inputs */
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        /* ── Photo upload ── */
+        .profile-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 26px;
+            gap: 12px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+        }
+
+        .avatar-wrap img {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            display: block;
+        }
+
+        .avatar-wrap .change-icon {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 26px;
+            height: 26px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .avatar-wrap .change-icon svg {
+            width: 13px;
+            height: 13px;
+            fill: white;
+        }
+
+        .file-input-label {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* ── Buttons ── */
         .buttons {
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
+            align-items: center;
+            margin-top: 28px;
+            gap: 12px;
         }
 
         button {
-            padding: 12px 22px;
-            border-radius: 8px;
+            padding: 12px 26px;
+            border-radius: var(--radius);
             border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.25s ease;
         }
 
-        .next-btn {
-            background: linear-gradient(90deg,#667eea,#764ba2);
+        .next-btn, #submitBtn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: white;
+            box-shadow: 0 4px 14px rgba(91,80,214,0.35);
+        }
+
+        .next-btn:hover, #submitBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(91,80,214,0.45);
         }
 
         .prev-btn {
-            background: #e5e7eb;
+            background: var(--bg);
+            color: var(--muted);
+            border: 1.5px solid var(--border);
         }
 
-        button:hover {
+        .prev-btn:hover {
+            background: var(--border);
             transform: translateY(-2px);
         }
 
-        /* Image Upload */
-        .profile-preview {
-            text-align: center;
-            margin-bottom: 20px;
+        .prev-btn[style*="hidden"] {
+            pointer-events: none;
+            opacity: 0;
         }
 
-        .profile-preview img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #667eea;
+        /* ── Responsive ── */
+        @media (max-width: 560px) {
+            .card {
+                padding: 28px 20px 24px;
+            }
+            .input-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -156,209 +346,199 @@
 
 {% if messages %}
   {% for message in messages %}
-    <div style="
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #d1fae5;
-        color: #065f46;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        z-index: 999;">
-      {{ message }}
-    </div>
+    <div class="toast">{{ message }}</div>
   {% endfor %}
 {% endif %}
 
 <div class="card">
-    <h2>Complete Your Profile</h2>
-    <p>Step-by-step setup for NASC Alumni Network</p>
-
-    <div class="progress-container">
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
-        </div>
+    <div class="card-header">
+        <h2>Complete Your Profile</h2>
+        <p>Step-by-step setup for NASC Alumni Network</p>
     </div>
+
+    <!-- Step dots indicator -->
+    <div class="step-indicators">
+        <div class="step-dot" id="dot-0"></div>
+        <div class="step-dot" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+    </div>
+    <div class="step-label">Step <span id="stepNum">1</span> of 3</div>
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <!-- STEP 1 -->
+        <!-- STEP 1 – Basic Information -->
         <div class="step active">
-
             <h3>Basic Information</h3>
 
-            <div class="profile-preview">
-                <img id="preview" src="{% static 'default-avatar.png' %}">
-                <br><br>
-                <input type="file" name="photo" onchange="previewImage(event)">
+            <div class="profile-upload">
+                <div class="avatar-wrap">
+                    <img id="preview" src="{% static 'default-avatar.png' %}" alt="Profile preview">
+                    <label for="photoInput" class="change-icon">
+                        <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zm-2.207 2.207L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                        </svg>
+                    </label>
+                </div>
+                <label for="photoInput" class="file-input-label">Upload Photo</label>
+                <input type="file" id="photoInput" name="photo" accept="image/*" onchange="previewImage(event)">
             </div>
 
-            <div class="input-group">
-                <input type="text" name="first_name" placeholder=" " required>
-                <label>First Name</label>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="text" name="first_name" placeholder=" " required>
+                    <label>First Name</label>
+                </div>
+                <div class="input-group">
+                    <input type="text" name="last_name" placeholder=" " required>
+                    <label>Last Name</label>
+                </div>
             </div>
 
-            <div class="input-group">
-                <input type="text" name="last_name" placeholder=" " required>
-                <label>Last Name</label>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="date" name="date_of_birth">
+                    <label>Date of Birth</label>
+                </div>
+                <div class="input-group">
+                    <select name="gender" onchange="this.classList.toggle('has-value', this.value !== '')">
+                        <option value=""></option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <label>Gender</label>
+                </div>
             </div>
-
-            <div class="input-group">
-                <input type="date" name="date_of_birth" placeholder=" ">
-                <label>Date of Birth</label>
-            </div>
-
-            <div class="input-group">
-                <select name="gender">
-                    <option value="">Select Gender</option>
-                    <option>Male</option>
-                    <option>Female</option>
-                    <option>Other</option>
-                </select>
-                <label>Gender</label>
-            </div>
-
         </div>
 
-        <!-- STEP 2 -->
+        <!-- STEP 2 – Academic Details -->
         <div class="step">
-
             <h3>Academic Details</h3>
 
-            <div class="input-group">
-                <input type="text" name="department" placeholder=" ">
-                <label>Department</label>
-            </div>
-
-            <div class="input-group">
-                <input type="text" name="student_id" placeholder=" ">
-                <label>Student ID</label>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="text" name="department" placeholder=" ">
+                    <label>Department</label>
+                </div>
+                <div class="input-group">
+                    <input type="text" name="student_id" placeholder=" ">
+                    <label>Student ID</label>
+                </div>
             </div>
 
             <div class="input-group">
                 <input type="text" name="degree" placeholder=" ">
-                <label>Degree</label>
+                <label>Degree / Programme</label>
             </div>
 
-            <div class="input-group">
-                <input type="number" name="year_of_admission" placeholder=" ">
-                <label>Year of Admission</label>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="number" name="year_of_admission" placeholder=" " min="1950" max="2100">
+                    <label>Year of Admission</label>
+                </div>
+                <div class="input-group">
+                    <input type="number" name="year_of_graduation" placeholder=" " min="1950" max="2100">
+                    <label>Graduation Year</label>
+                </div>
             </div>
-
-            <div class="input-group">
-                <input type="number" name="year_of_graduation" placeholder=" ">
-                <label>Graduation Year</label>
-            </div>
-
         </div>
 
- 
-        <!-- STEP 4 -->
+        <!-- STEP 3 – Professional Details (was incorrectly labelled Step 4) -->
         <div class="step">
-
             <h3>Professional Details</h3>
 
-            <div class="input-group">
-                <input type="text" name="current_designation" placeholder=" ">
-                <label>Current Designation</label>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="text" name="current_designation" placeholder=" ">
+                    <label>Current Designation</label>
+                </div>
+                <div class="input-group">
+                    <input type="text" name="current_company" placeholder=" ">
+                    <label>Current Company</label>
+                </div>
             </div>
 
-            <div class="input-group">
-                <input type="text" name="current_company" placeholder=" ">
-                <label>Current Company</label>
-            </div>
-
-            <div class="input-group">
-                <input type="number" name="year_of_experience" placeholder=" ">
-                <label>Experience (Years)</label>
+            <div class="input-row">
+                <div class="input-group">
+                    <input type="number" name="year_of_experience" placeholder=" " min="0" max="60">
+                    <label>Experience (Years)</label>
+                </div>
+                <div class="input-group">
+                    <input type="tel" name="phone_number" placeholder=" ">
+                    <label>Phone Number</label>
+                </div>
             </div>
 
             <div class="input-group">
                 <input type="url" name="linkedin_profile" placeholder=" ">
-                <label>LinkedIn Profile</label>
+                <label>LinkedIn Profile URL</label>
             </div>
-
-            <div class="input-group">
-                <input type="text" name="phone_number" placeholder=" ">
-                <label>Phone Number</label>
-            </div>
-
         </div>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
 
+        <div class="buttons">
+            <button type="button" class="prev-btn" id="prevBtn" onclick="prevStep()">← Previous</button>
+            <button type="button" class="next-btn" id="nextBtn" onclick="nextStep()">Next →</button>
+            <button type="submit" id="submitBtn" style="display:none;">Submit Profile</button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
     let currentStep = 0;
     const steps = document.querySelectorAll(".step");
-    const progress = document.getElementById("progress");
+    const dots  = document.querySelectorAll(".step-dot");
+    const stepNumEl = document.getElementById("stepNum");
     const submitBtn = document.getElementById("submitBtn");
-    const nextBtn = document.querySelector(".next-btn");
-    const prevBtn = document.querySelector(".prev-btn");
+    const nextBtn   = document.getElementById("nextBtn");
+    const prevBtn   = document.getElementById("prevBtn");
 
     function showStep(index) {
+        steps.forEach((s, i) => s.classList.toggle("active", i === index));
 
-        steps.forEach((step, i) => {
-            step.classList.remove("active");
-        });
+        // Update dots
+        dots.forEach((d, i) => d.classList.toggle("done", i <= index));
 
-        if (steps[index]) {
-            steps[index].classList.add("active");
-        }
+        stepNumEl.textContent = index + 1;
 
-        if (progress) {
-            progress.style.width = ((index + 1) / steps.length) * 100 + "%";
-        }
+        // Show / hide buttons
+        const isLast  = index === steps.length - 1;
+        const isFirst = index === 0;
 
-        if (index === steps.length - 1) {
-            nextBtn.style.display = "none";
-            submitBtn.style.display = "inline-block";
-        } else {
-            nextBtn.style.display = "inline-block";
-            submitBtn.style.display = "none";
-        }
-
-        if (index === 0) {
-            prevBtn.style.visibility = "hidden";
-        } else {
-            prevBtn.style.visibility = "visible";
-        }
+        nextBtn.style.display   = isLast  ? "none"         : "inline-block";
+        submitBtn.style.display = isLast  ? "inline-block" : "none";
+        prevBtn.style.visibility = isFirst ? "hidden"      : "visible";
     }
 
-    window.nextStep = function() {
+    window.nextStep = function () {
         if (currentStep < steps.length - 1) {
             currentStep++;
             showStep(currentStep);
         }
-    }
+    };
 
-    window.prevStep = function() {
+    window.prevStep = function () {
         if (currentStep > 0) {
             currentStep--;
             showStep(currentStep);
         }
-    }
+    };
 
-    window.previewImage = function(event) {
+    window.previewImage = function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
-        reader.onload = function() {
+        reader.onload = function () {
             document.getElementById("preview").src = reader.result;
         };
-        reader.readAsDataURL(event.target.files[0]);
-    }
+        reader.readAsDataURL(file);
+    };
 
     showStep(currentStep);
 });
 </script>
 
-        <div class="buttons">
-            <button type="button" class="prev-btn" onclick="prevStep()">Previous</button>
-            <button type="button" class="next-btn" onclick="nextStep()">Next</button>
-            <button type="submit" id="submitBtn" style="display:none;">Submit</button>
-        </div>
-
-    </form>
 </body>
 </html>
