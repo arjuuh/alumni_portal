@@ -3,280 +3,706 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NASC AlumniHub – Login</title>
+<title>NASC AlumniHub – Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 
 <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-    --primary: #1e3a8a;
-    --accent: #7c3aed;
-    --glass: rgba(255,255,255,0.15);
-    --border: rgba(255,255,255,0.25);
-    --text-dark: #0f172a;
-    --text-muted: #64748b;
+    --primary:        #1e3a8a;
+    --accent:         #7c3aed;
+    --primary-light:  #dbeafe;
+    --accent-light:   #ede9fe;
+    --text-dark:      #0f172a;
+    --text-mid:       #334155;
+    --text-muted:     #64748b;
+    --border:         #e8edf4;
+    --white:          #ffffff;
+    --glass:          rgba(255,255,255,0.085);
+    --glass-border:   rgba(255,255,255,0.16);
 }
 
-* { box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
 
 body {
-    margin: 0;
-    font-family: "Segoe UI", Roboto, sans-serif;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #1e3a8a, #7c3aed);
-    overflow: hidden;
+    font-family: 'Outfit', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-/* Floating background shapes */
-.bg-shape {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.25;
-    animation: float 8s infinite ease-in-out;
-}
-
-.shape1 {
-    width: 300px;
-    height: 300px;
-    background: #ffffff;
-    top: -80px;
-    left: -80px;
-}
-
-.shape2 {
-    width: 250px;
-    height: 250px;
-    background: #c4b5fd;
-    bottom: -100px;
-    right: -60px;
-    animation-delay: 2s;
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(25px); }
-    100% { transform: translateY(0px); }
-}
-
-/* Main wrapper */
-.wrapper {
     position: relative;
-    width: 100%;
-    max-width: 1100px;
+    background:
+        radial-gradient(ellipse 80% 60% at 10% 15%,  rgba(49,79,188,0.70)  0%, transparent 55%),
+        radial-gradient(ellipse 65% 70% at 90% 85%,  rgba(109,40,217,0.55) 0%, transparent 52%),
+        radial-gradient(ellipse 50% 50% at 52% 50%,  rgba(30,58,138,0.32)  0%, transparent 62%),
+        radial-gradient(ellipse 40% 35% at 75% 20%,  rgba(88,28,135,0.28)  0%, transparent 55%),
+        linear-gradient(162deg, #080e2e 0%, #110832 40%, #09051e 100%);
+}
+
+body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none; z-index: 0;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: -45%; left: -20%;
+    width: 140%; height: 70%;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.032) 0%, transparent 62%);
+    pointer-events: none; z-index: 0;
+    animation: ambientDrift 22s ease-in-out infinite alternate;
+}
+@keyframes ambientDrift {
+    from { transform: translateX(-5%) translateY(0) rotate(-1deg); }
+    to   { transform: translateX(5%)  translateY(9%) rotate(1deg); }
+}
+
+.orb {
+    position: fixed; border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: orbFloat ease-in-out infinite;
+}
+.orb1 { width:500px;height:500px; background:radial-gradient(circle,rgba(99,102,241,0.17) 0%,transparent 65%); top:-170px;left:-140px; animation-duration:14s; }
+.orb2 { width:350px;height:350px; background:radial-gradient(circle,rgba(167,139,250,0.14) 0%,transparent 65%); bottom:-100px;right:-100px; animation-duration:17s;animation-delay:4s; }
+.orb3 { width:220px;height:220px; background:radial-gradient(circle,rgba(96,165,250,0.10)  0%,transparent 65%); top:30%;right:7%; animation-duration:11s;animation-delay:2.5s; }
+.orb4 { width:180px;height:180px; background:radial-gradient(circle,rgba(196,181,253,0.09) 0%,transparent 65%); top:55%;left:12%; animation-duration:15s;animation-delay:7s; }
+@keyframes orbFloat {
+    0%,100% { transform:translateY(0)    scale(1);    }
+    50%      { transform:translateY(26px) scale(1.04); }
+}
+
+/* ── WRAPPER ─────────────────────────────────── */
+.wrapper {
+    position: relative; z-index: 1;
+    width: calc(100% - 48px);
+    max-width: 1060px;
     display: grid;
-    grid-template-columns: 1.3fr 1fr;
+    grid-template-columns: 1.22fr 1fr;
     border-radius: 28px;
     overflow: hidden;
-    backdrop-filter: blur(25px);
     background: var(--glass);
-    border: 1px solid var(--border);
-    box-shadow: 0 40px 80px rgba(0,0,0,0.35);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+        0 52px 110px rgba(0,0,0,0.55),
+        0 0 0 1px rgba(255,255,255,0.048) inset,
+        0 1px 0 rgba(255,255,255,0.11) inset;
+    animation: wrapIn 0.82s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes wrapIn {
+    from { opacity:0; transform:translateY(38px) scale(0.968); }
+    to   { opacity:1; transform:translateY(0)    scale(1); }
 }
 
-/* LEFT SECTION */
+/* ══ LEFT PANEL ══════════════════════════════════ */
 .left {
-    padding: 70px;
+    padding: 58px 52px 52px;
     color: white;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    min-height: 578px;
+}
+.left::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+        linear-gradient(160deg, rgba(255,255,255,0.07) 0%, transparent 48%),
+        linear-gradient(to right, rgba(255,255,255,0.04) 0%, transparent 35%);
+    pointer-events: none;
+}
+.left::after {
+    content: '';
+    position: absolute;
+    width: 380px; height: 380px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.055);
+    bottom: -130px; left: -100px; pointer-events: none;
+}
+.left-ring2 {
+    position: absolute;
+    width: 260px; height: 260px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.042);
+    top: -70px; right: -60px; pointer-events: none;
 }
 
-.left h1 {
-    font-size: 42px;
-    margin-bottom: 15px;
+/* Brand */
+.brand {
+    display: flex; align-items: center; gap: 14px;
+    animation: fadeUp 0.55s 0.12s both;
 }
-
-.left span {
-    font-weight: 300;
-}
-
-.left p {
-    font-size: 16px;
-    opacity: 0.9;
-    margin-bottom: 35px;
-}
-
-.left ul {
-    list-style: none;
-    padding: 0;
-}
-
-.left ul li {
-    margin-bottom: 14px;
-    font-size: 15px;
-}
-
-.left ul li::before {
-    content: "✔";
-    margin-right: 8px;
-}
-
-/* Illustration */
-.illustration {
-    margin-top: 40px;
-}
-
-.illustration svg {
-    width: 100%;
-    max-width: 320px;
-    opacity: 0.95;
-}
-
-/* RIGHT SECTION */
-.right {
-    background: white;
-    padding: 70px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.right h2 {
-    margin: 0;
-    font-size: 26px;
-    color: var(--text-dark);
-}
-
-.right p {
-    margin: 8px 0 30px;
-    font-size: 14px;
-    color: var(--text-muted);
-}
-
-label {
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    display: block;
-}
-
-input {
-    width: 100%;
-    padding: 14px 16px;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 18px;
-    font-size: 14px;
-    transition: 0.3s;
-}
-
-input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(30,58,138,0.15);
-}
-
-button {
-    width: 100%;
-    padding: 14px;
+.brand-icon {
+    width: 46px; height: 46px;
+    background: rgba(255,255,255,0.14);
     border-radius: 14px;
-    border: none;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s;
+    border: 1px solid rgba(255,255,255,0.24);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.18);
+    transition: background 0.3s, transform 0.3s;
+}
+.brand-icon:hover { background: rgba(255,255,255,0.24); transform: rotate(-6deg) scale(1.06); }
+.brand-icon svg { width: 22px; height: 22px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.brand-text-wrap { display: flex; flex-direction: column; line-height: 1; }
+.brand-name { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+.brand-sub  { font-size: 10px; opacity: 0.44; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px; }
+
+/* Hero */
+.hero { animation: fadeUp 0.55s 0.22s both; margin-top: 42px; }
+.hero .eyebrow {
+    font-size: 10.5px; letter-spacing: 0.14em;
+    text-transform: uppercase; opacity: 0.44;
+    margin-bottom: 18px; font-weight: 600;
+    display: flex; align-items: center; gap: 9px;
+}
+.hero .eyebrow::before {
+    content: '';
+    display: inline-block; width: 22px; height: 1px;
+    background: rgba(255,255,255,0.4);
+}
+.hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 50px; font-weight: 600;
+    line-height: 1.08; margin-bottom: 18px;
+    letter-spacing: -0.01em;
+}
+.hero h1 em {
+    font-style: italic;
+    color: rgba(196,181,253,0.72);
+    -webkit-text-fill-color: rgba(196,181,253,0.72);
+}
+.hero > p {
+    font-size: 14px; line-height: 1.74;
+    color: rgba(255,255,255,0.62); max-width: 300px;
 }
 
-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+/* Features */
+.features {
+    margin-top: 32px;
+    display: flex; flex-direction: column; gap: 11px;
+    animation: fadeUp 0.55s 0.32s both;
+}
+.feat-item {
+    display: flex; align-items: center; gap: 13px;
+    transition: transform 0.22s ease;
+}
+.feat-item:hover { transform: translateX(5px); }
+.feat-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.16);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    transition: background 0.22s, box-shadow 0.22s;
+}
+.feat-item:hover .feat-icon {
+    background: rgba(255,255,255,0.19);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 12px rgba(0,0,0,0.15);
+}
+.feat-icon svg { width: 15px; height: 15px; stroke: rgba(255,255,255,0.88); fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.feat-text { font-size: 13.5px; color: rgba(255,255,255,0.80); }
+
+/* Stats */
+.stats-row {
+    display: flex; gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.09);
+    padding-top: 24px;
+    animation: fadeUp 0.55s 0.42s both;
+}
+.stat { flex: 1; padding-right: 20px; border-right: 1px solid rgba(255,255,255,0.08); }
+.stat:last-child  { border-right: none; padding-right: 0; padding-left: 20px; }
+.stat:nth-child(2){ padding-left: 20px; }
+.stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px; font-weight: 800;
+    line-height: 1; margin-bottom: 5px;
+    background: linear-gradient(135deg, #fff 30%, rgba(196,181,253,0.85));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.stat-label { font-size: 10.5px; color: rgba(255,255,255,0.42); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+
+/* Left footer */
+.left-footer {
+    font-size: 11px; color: rgba(255,255,255,0.26);
+    line-height: 1.65; margin-top: 22px;
+    animation: fadeUp 0.55s 0.5s both;
 }
 
-.signup {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 14px;
+/* ══ RIGHT PANEL ══════════════════════════════ */
+.right {
+    background: var(--white);
+    padding: 56px 50px 50px;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    position: relative; overflow: hidden;
 }
 
-.signup a {
+/* Shimmer top bar */
+.right::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent), #a78bfa, #60a5fa, var(--primary));
+    background-size: 320% 100%;
+    animation: shimmer 5s linear infinite;
+}
+@keyframes shimmer {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 320% 0%; }
+}
+
+/* Ambient corner glow */
+.right::after {
+    content: '';
+    position: absolute;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-light) 0%, transparent 72%);
+    bottom: -90px; right: -70px;
+    opacity: 0.45; pointer-events: none;
+}
+
+/* Right header */
+.right-header { margin-bottom: 30px; animation: fadeUp 0.55s 0.28s both; }
+
+.welcome-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+    border: 1px solid rgba(124,58,237,0.13);
     color: var(--primary);
-    font-weight: 600;
-    text-decoration: none;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    padding: 5px 14px 5px 10px;
+    border-radius: 99px; margin-bottom: 18px; width: fit-content;
+}
+.pulse-dot {
+    position: relative; width: 7px; height: 7px;
+    border-radius: 50%; background: var(--accent); flex-shrink: 0;
+}
+.pulse-dot::after {
+    content: '';
+    position: absolute; inset: -3px; border-radius: 50%;
+    background: rgba(124,58,237,0.3);
+    animation: dotPulse 1.8s ease-in-out infinite;
+}
+@keyframes dotPulse {
+    0%,100% { transform: scale(0.85); opacity: 0.7; }
+    50%      { transform: scale(1.4);  opacity: 0; }
 }
 
-/* Message Box */
+.right-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px; font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: -0.025em; margin-bottom: 8px; line-height: 1.1;
+}
+.right-header p { font-size: 13.5px; color: var(--text-muted); line-height: 1.64; max-width: 310px; }
+
+/* Message boxes */
 .msg-box {
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    font-size: 14px;
+    padding: 12px 16px; border-radius: 11px;
+    margin-bottom: 16px; font-size: 13px; font-weight: 500;
+    display: flex; align-items: flex-start; gap: 10px;
+    animation: fadeUp 0.4s both; line-height: 1.5;
 }
-.msg-error { background: #fee2e2; color: #b91c1c; }
-.msg-success { background: #dcfce7; color: #166534; }
+.msg-box svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.msg-error   { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+.msg-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
 
-/* Responsive */
-@media (max-width: 900px) {
-    .wrapper { grid-template-columns: 1fr; }
-    .left { padding: 40px; text-align: center; }
-    .right { padding: 40px; }
+/* ── Floating-label fields ───────────────── */
+.field {
+    position: relative; margin-bottom: 18px;
+    animation: fadeUp 0.55s both;
+}
+.field:nth-child(1){ animation-delay: 0.35s; }
+.field:nth-child(2){ animation-delay: 0.42s; }
+
+.field input {
+    width: 100%;
+    padding: 20px 16px 9px 46px;
+    border-radius: 13px;
+    border: 1.5px solid var(--border);
+    font-size: 14.5px; font-family: 'Outfit', sans-serif;
+    color: var(--text-dark); background: #f8fafc;
+    outline: none; -webkit-appearance: none;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    line-height: 1;
+}
+.field input:hover  { border-color: #c7d2e0; background: #f4f7fb; }
+.field input:focus  { border-color: var(--primary); background: var(--white); box-shadow: 0 0 0 4px rgba(30,58,138,0.09); }
+
+/* Floating label */
+.field label {
+    position: absolute; left: 46px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px; color: var(--text-muted);
+    pointer-events: none;
+    transition: all 0.22s cubic-bezier(0.22,1,0.36,1);
+    font-weight: 400; white-space: nowrap;
+}
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label {
+    top: 12px; transform: none;
+    font-size: 10px; font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.07em; text-transform: uppercase;
+}
+
+/* Left icon */
+.field-icon {
+    position: absolute; left: 15px; top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; display: flex;
+}
+.field-icon svg {
+    width: 16px; height: 16px; stroke: #94a3b8; fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    transition: stroke 0.22s;
+}
+.field input:focus ~ .field-icon svg { stroke: var(--primary); }
+
+/* Eye toggle */
+.field .eye-btn {
+    position: absolute; right: 13px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    padding: 6px; color: var(--text-muted);
+    display: flex; align-items: center;
+    border-radius: 7px;
+    transition: color 0.2s, background 0.2s;
+}
+.field .eye-btn:hover { color: var(--primary); background: var(--primary-light); }
+.field .eye-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.field input[type="password"] { padding-right: 48px; }
+
+/* Forgot */
+.forgot-row {
+    display: flex; justify-content: flex-end;
+    margin: -6px 0 20px;
+    animation: fadeUp 0.55s 0.48s both;
+}
+.forgot-link {
+    font-size: 12.5px; color: var(--accent); font-weight: 600;
+    text-decoration: none; border-bottom: 1.5px solid transparent;
+    padding-bottom: 1px;
+    transition: border-color 0.2s, opacity 0.2s;
+}
+.forgot-link:hover { border-color: var(--accent); opacity: 0.8; }
+
+/* Submit button */
+.submit-btn {
+    width: 100%; padding: 15.5px;
+    border-radius: 13px; border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: white; cursor: pointer;
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    box-shadow: 0 7px 24px rgba(30,58,138,0.34), 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.26s cubic-bezier(0.22,1,0.36,1), box-shadow 0.26s;
+    letter-spacing: 0.01em;
+    animation: fadeUp 0.55s 0.54s both;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.submit-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.16), transparent 60%);
+    opacity: 0; transition: opacity 0.26s;
+}
+.submit-btn:hover { transform: translateY(-2.5px); box-shadow: 0 14px 36px rgba(30,58,138,0.44), 0 4px 10px rgba(0,0,0,0.12); }
+.submit-btn:hover::before { opacity: 1; }
+.submit-btn:active { transform: translateY(0); box-shadow: 0 4px 14px rgba(30,58,138,0.28); }
+.submit-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+.ripple-wave {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.28);
+    transform: scale(0);
+    animation: rippleAnim 0.58s linear forwards;
+    pointer-events: none;
+}
+@keyframes rippleAnim { to { transform: scale(4.5); opacity: 0; } }
+
+/* Divider */
+.divider {
+    display: flex; align-items: center; gap: 14px;
+    margin: 22px 0 18px;
+    animation: fadeUp 0.55s 0.58s both;
+}
+.divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.divider span { font-size: 12px; color: var(--text-muted); white-space: nowrap; font-weight: 500; }
+
+/* Register row */
+.register-row { text-align: center; animation: fadeUp 0.55s 0.62s both; }
+.register-row p { font-size: 13.5px; color: var(--text-muted); }
+.register-row a {
+    color: var(--primary); font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1.5px solid transparent;
+    padding-bottom: 1px;
+    transition: border-color 0.2s, color 0.2s;
+}
+.register-row a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Trust row */
+.trust-row {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    margin-top: 22px; padding-top: 20px;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.55s 0.66s both;
+}
+.trust-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10.5px; color: var(--text-muted); font-weight: 500;
+    transition: color 0.2s;
+}
+.trust-item:hover { color: var(--text-mid); }
+.trust-item svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.trust-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+
+/* ── UTILITIES ──────────────────────────────── */
+@keyframes fadeUp {
+    from { opacity:0; transform:translateY(15px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+
+@media (max-width: 860px) {
+    html, body { overflow: auto; height: auto; }
+    .wrapper { grid-template-columns: 1fr; width: calc(100% - 32px); margin: 20px auto; max-width: 460px; border-radius: 24px; }
+    .left { padding: 40px 34px 34px; min-height: auto; }
+    .hero h1 { font-size: 38px; }
+    .right { padding: 44px 34px 38px; }
+    .trust-row { flex-wrap: wrap; gap: 12px; }
+}
+@media (max-width: 420px) {
+    .left  { padding: 32px 22px 26px; }
+    .right { padding: 36px 22px 30px; }
+    .hero h1 { font-size: 33px; }
 }
 </style>
 </head>
 
 <body>
-
-<div class="bg-shape shape1"></div>
-<div class="bg-shape shape2"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="orb orb4"></div>
 
 <div class="wrapper">
 
-    <!-- LEFT -->
+    <!-- ══ LEFT ══ -->
     <div class="left">
-        <h1>NASC <span>AlumniHub</span></h1>
-        <p>Official Alumni Networking Portal of Nehru Arts & Science College Kanhangad</p>
+        <div class="left-ring2"></div>
 
-        <ul>
-            <li>Connect with NASC graduates worldwide</li>
-            <li>Explore career & networking opportunities</li>
-            <li>Participate in alumni events</li>
-            <li>Strengthen the NASC community</li>
-        </ul>
+        <div>
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24"><path d="M22 9L12 5 2 9l10 4 10-4z"/><path d="M6 11v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/><line x1="22" y1="9" x2="22" y2="15" stroke-linecap="round"/></svg>
+                </div>
+                <div class="brand-text-wrap">
+                    <div class="brand-name">NASC AlumniHub</div>
+                    <div class="brand-sub">Alumni Network Portal</div>
+                </div>
+            </div>
 
-        <div class="illustration">
-            <svg viewBox="0 0 200 150" fill="none">
-                <circle cx="70" cy="60" r="25" fill="#ffffff" opacity="0.4"/>
-                <rect x="100" y="40" width="60" height="40" rx="8" fill="#ffffff" opacity="0.5"/>
-                <circle cx="140" cy="100" r="20" fill="#ffffff" opacity="0.4"/>
-            </svg>
+            <div class="hero">
+                <div class="eyebrow">Welcome Back</div>
+                <h1>Reconnect.<br><em>Grow.</em> Belong.</h1>
+                <p>The official alumni networking portal of Nehru Arts &amp; Science College, Kanhangad — where graduates stay connected.</p>
+
+                <div class="features">
+                    <div class="feat-item">
+                        <div class="feat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                        </div>
+                        <span class="feat-text">Connect with NASC graduates worldwide</span>
+                    </div>
+                    <div class="feat-item">
+                        <div class="feat-icon">
+                            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+                        </div>
+                        <span class="feat-text">Explore career &amp; networking opportunities</span>
+                    </div>
+                    <div class="feat-item">
+                        <div class="feat-icon">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                        <span class="feat-text">Participate in alumni events &amp; reunions</span>
+                    </div>
+                    <div class="feat-item">
+                        <div class="feat-icon">
+                            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                        </div>
+                        <span class="feat-text">Strengthen the NASC community</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="stat-num">2,400+</div>
+                    <div class="stat-label">Alumni</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">40+</div>
+                    <div class="stat-label">Departments</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">Since '82</div>
+                    <div class="stat-label">Legacy</div>
+                </div>
+            </div>
+            <div class="left-footer">
+                Nehru Arts &amp; Science College, Kanhangad<br>
+                Alumni Network &copy; 2025
+            </div>
         </div>
     </div>
 
-    <!-- RIGHT -->
+    <!-- ══ RIGHT ══ -->
     <div class="right">
-        <h2>Welcome Back 👋</h2>
-        <p>Login to access your NASC Alumni account</p>
+
+        <div class="right-header">
+            <div class="welcome-badge">
+                <span class="pulse-dot"></span>
+                Secure Login
+            </div>
+            <h2>Welcome back 👋</h2>
+            <p>Sign in to access your NASC Alumni account and reconnect with your community.</p>
+        </div>
 
         {% if messages %}
             {% for message in messages %}
                 <div class="msg-box {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">
+                    {% if message.tags == 'success' %}
+                        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    {% else %}
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {% endif %}
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
 
-        <!-- ✅ action points to correct url -->
-        <form method="POST" action="{% url 'home' %}">
+        <form method="POST" action="{% url 'home' %}" id="loginForm">
             {% csrf_token %}
 
-            <label>Email Address</label>
-            <input type="email" name="email" placeholder="Enter your email" required autocomplete="email">
+            <div class="field">
+                <input type="email" name="email" id="emailInput" placeholder=" " required autocomplete="email">
+                <label for="emailInput">Email Address</label>
+                <span class="field-icon">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </span>
+            </div>
 
-            <label>Password</label>
-            <input type="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+            <div class="field">
+                <input type="password" name="password" id="passInput" placeholder=" " required autocomplete="current-password">
+                <label for="passInput">Password</label>
+                <span class="field-icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                </span>
+                <button type="button" class="eye-btn" id="eyeBtn" aria-label="Toggle password visibility">
+                    <svg id="eyeIcon" viewBox="0 0 24 24">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+            </div>
 
-            <button type="submit">Sign In</button>
+            <div class="forgot-row">
+                <a href="#" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Sign In to AlumniHub
+            </button>
         </form>
 
-        <div class="signup">
-            Don’t have an account?
-            <a href="{% url 'register' %}">Create Account</a>
-        </div>
-    </div>
+        <div class="divider"><span>New to NASC AlumniHub?</span></div>
 
+        <div class="register-row">
+            <p>Don't have an account? <a href="{% url 'register' %}">Create your account →</a></p>
+        </div>
+
+        <div class="trust-row">
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Secure &amp; encrypted
+            </div>
+            <div class="trust-sep"></div>
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Verified alumni only
+            </div>
+            <div class="trust-sep"></div>
+            <div class="trust-item">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                NASC official portal
+            </div>
+        </div>
+
+    </div>
 </div>
+
+<script>
+/* Password toggle */
+const passInput = document.getElementById('passInput');
+const eyeBtn    = document.getElementById('eyeBtn');
+const eyeIcon   = document.getElementById('eyeIcon');
+const eyeOpen   = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+const eyeClosed = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+eyeBtn.addEventListener('click', () => {
+    const isPass = passInput.type === 'password';
+    passInput.type = isPass ? 'text' : 'password';
+    eyeIcon.innerHTML = isPass ? eyeClosed : eyeOpen;
+});
+
+/* Ripple */
+document.getElementById('submitBtn').addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect();
+    const r = document.createElement('span');
+    const d = Math.max(rect.width, rect.height);
+    r.className = 'ripple-wave';
+    r.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX-rect.left-d/2}px;top:${e.clientY-rect.top-d/2}px;`;
+    this.appendChild(r);
+    setTimeout(() => r.remove(), 620);
+});
+
+/* Validation highlight */
+document.getElementById('loginForm').addEventListener('submit', function() {
+    this.querySelectorAll('input[required]').forEach(inp => {
+        if (!inp.value.trim()) {
+            inp.style.borderColor = '#ef4444';
+            inp.style.boxShadow   = '0 0 0 4px rgba(239,68,68,0.11)';
+            inp.addEventListener('input', () => { inp.style.borderColor=''; inp.style.boxShadow=''; }, { once: true });
+        }
+    });
+});
+
+/* Stagger feature items */
+document.querySelectorAll('.feat-item').forEach((el, i) => {
+    el.style.cssText = 'opacity:0;transform:translateX(-14px);transition:opacity 0.42s ease,transform 0.42s ease;';
+    setTimeout(() => { el.style.opacity='1'; el.style.transform='translateX(0)'; }, 420 + i * 80);
+});
+
+/* Stagger stats */
+document.querySelectorAll('.stat').forEach((el, i) => {
+    el.style.cssText = 'opacity:0;transform:translateY(10px);transition:opacity 0.38s ease,transform 0.38s ease;';
+    setTimeout(() => { el.style.opacity='1'; el.style.transform='translateY(0)'; }, 680 + i * 90);
+});
+</script>
 
 </body>
 </html>

@@ -28,4 +28,7 @@ urlpatterns = [
     path("post/<int:post_id>/edit/", views.edit_post, name="edit_post"),
     path("connections/followers/", views.followers_list, name="followers_list"),
     path("connections/following/", views.following_list, name="following_list"),
+    path("send-otp/", views.send_otp, name="send_otp"),
+    path("verify-otp/", views.verify_otp, name="verify_otp"),
+    path('resend-otp/', views.resend_otp, name='resend_otp'),
 ]

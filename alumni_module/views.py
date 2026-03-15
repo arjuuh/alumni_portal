@@ -161,7 +161,7 @@ def edit_profile(request):
     engagement, _ = AlumniEngagement.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        # Personal
+       # Personal
         profile.first_name = request.POST.get('first_name', '')
         profile.last_name = request.POST.get('last_name', '')
         profile.gender = request.POST.get('gender', '')
@@ -170,6 +170,11 @@ def edit_profile(request):
         profile.state = request.POST.get('state', '')
         profile.country = request.POST.get('country', '')
         profile.postal_code = request.POST.get('postal_code', '')
+
+        #PHOTO UPLOAD
+        if request.FILES.get('photo'):
+            profile.photo = request.FILES['photo']
+
         profile.save()
 
         # Academic
@@ -254,6 +259,7 @@ from .models import Connection   # make sure this import exists
 
 @login_required
 def view_profile(request, user_id):
+
     approved = SystemMetadata.objects.filter(
         user_id=user_id,
         status="APPROVED"
@@ -267,17 +273,43 @@ def view_profile(request, user_id):
     professional = ProfessionalDetails.objects.filter(user_id=user_id).first()
     contact = ContactDetails.objects.filter(user_id=user_id).first()
 
+    # follow status
     is_following = Connection.objects.filter(
         follower=request.user,
         following_id=user_id
     ).exists()
+
+    # stats
+    followers_count = Connection.objects.filter(
+        following_id=user_id
+    ).count()
+
+    following_count = Connection.objects.filter(
+        follower_id=user_id
+    ).count()
+
+    posts_count = Post.objects.filter(
+        user_id=user_id
+    ).count()
+
+    # ✅ GET USER POSTS
+    user_posts = Post.objects.filter(
+        user_id=user_id
+    ).order_by("-created_at")
 
     return render(request, 'alumni/view_profile.html', {
         'profile': profile,
         'academic': academic,
         'professional': professional,
         'contact': contact,
-        'is_following': is_following,   # ✅ ADD THIS TO CONTEXT
+        'is_following': is_following,
+
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'posts_count': posts_count,
+
+        # important for posts section
+        'user_posts': user_posts,
     })
 
 @login_required
@@ -364,10 +396,15 @@ def user_logout(request):
     logout(request)
     return redirect("home")   # or your login page name
 
+from django.db.models import Q
+
 def alumni_list_view(request):
     q = request.GET.get("q", "").strip()
 
-    alumni = AlumniProfile.objects.select_related("user").all()
+    alumni = AlumniProfile.objects.select_related("user").filter(
+        user__is_staff=False,
+        user__is_superuser=False
+    )
 
     if q:
         alumni = alumni.filter(
@@ -387,7 +424,6 @@ def alumni_list_view(request):
         "q": q,
         "following_ids": following_ids
     })
-
 
 from django.http import JsonResponse
 
@@ -674,3 +710,131 @@ def follow_user(request, user_id):
     )
 
     return redirect("dashboard")
+
+
+from django.core.mail import send_mail
+from django.shortcuts import render
+from django.contrib.auth.models import User
+from .models import EmailOTP
+import random
+
+
+def send_otp(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if password != confirm_password:
+            return render(request, "auth/register.html", {"error": "Passwords do not match"})
+
+        if User.objects.filter(username=username).exists():
+            return render(request, "auth/register.html", {"error": "Username already exists"})
+
+        if User.objects.filter(email=email).exists():
+            return render(request, "auth/register.html", {"error": "Email already registered"})
+
+        otp = str(random.randint(100000, 999999))
+
+        EmailOTP.objects.update_or_create(
+            email=email,
+            defaults={"otp": otp}
+        )
+
+        send_mail(
+            "Your Alumni Portal Verification Code",
+            f"Your verification code is {otp}",
+            "yourgmail@gmail.com",
+            [email],
+            fail_silently=False,
+        )
+
+        # Store data in session
+        request.session["username"] = username
+        request.session["email"] = email
+        request.session["password"] = password
+
+        return render(request, "auth/verify_otp.html")
+
+    return render(request, "auth/register.html")
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from .models import EmailOTP
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from .models import EmailOTP
+
+def verify_otp(request):
+
+    if request.method == "POST":
+
+        otp_entered = request.POST.get("otp")
+        email = request.session.get("email")
+
+        record = EmailOTP.objects.filter(email=email).first()
+
+        if record and record.otp == otp_entered:
+
+            username = request.session.get("username")
+            password = request.session.get("password")
+
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={"email": email}
+            )
+
+            if created:
+                user.set_password(password)
+                user.save()
+
+            login(request, user)
+
+            record.delete()
+
+            request.session.pop("email", None)
+            request.session.pop("username", None)
+            request.session.pop("password", None)
+
+            return redirect("complete_profile")
+
+        else:
+            return render(request, "auth/verify_otp.html", {
+                "error": "Invalid OTP"
+            })
+
+    return render(request, "auth/verify_otp.html")
+
+
+import random
+from django.core.mail import send_mail
+from django.shortcuts import render
+
+def resend_otp(request):
+
+    email = request.session.get("email")
+
+    otp = str(random.randint(100000,999999))
+
+    EmailOTP.objects.update_or_create(
+        email=email,
+        defaults={"otp": otp}
+    )
+
+    send_mail(
+        "Your Alumni Portal Verification Code",
+        f"Your new verification code is {otp}",
+        "yourgmail@gmail.com",
+        [email],
+        fail_silently=False,
+    )
+
+    return render(request, "auth/verify_otp.html", {
+        "error": "New OTP sent to your email"
+    })
