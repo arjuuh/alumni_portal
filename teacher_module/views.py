@@ -60,7 +60,7 @@ def approve_alumni(request, user_id):
 
 
 def approved_alumni(request):
-    approved = SystemMetadata.objects.filter(status="APPROVED")
+    approved =SystemMetadata.objects.filter(status="APPROVED")
     return render(request, "teacher/approved_alumni.html", {"approved": approved})
 
 

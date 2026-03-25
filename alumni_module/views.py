@@ -79,7 +79,7 @@ def register(request):
         SystemMetadata.objects.get_or_create(user=user, defaults={"status": "PENDING"})
 
         login(request, user)
-        return redirect("complete_profile")
+        return redirect("waiting_approval")
 
     return render(request, "auth/register.html")
 
